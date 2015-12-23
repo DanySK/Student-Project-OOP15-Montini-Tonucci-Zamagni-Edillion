@@ -1,4 +1,4 @@
-package model;
+package model.entities;
 
 import java.util.List;
 
@@ -39,12 +39,32 @@ public interface Entity {
      */
     void decreaseHp(int hp);
 
+    int getLevel();
+    
+    void setLevel(int level); 
+    
+    int getSpeed();
+
+    void setSpeed(int speed);
+    
     /**
      * 
-     * @return returns the skills set
+     * @return returns the skill's list
      */
     List<Skill> getSkillList();
     
+    /**
+     * 
+     * set the skill list.
+     */
+    void setSkillList(List<Skill> skillList);
+
+    /**
+     * 
+     * @return returns only allowed skills (level capped) 
+     */
+    List<Skill> getAllowedSkillList();
+
     /**
      * 
      * @return returns a skill data

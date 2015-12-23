@@ -1,16 +1,17 @@
 package model.skills;
 
-public enum BasicSkills implements Skill {
+public enum FMageSkills implements Skill {
     
-    TACKLE("Tackle", 5, 1), 
-    PUNCH("Punch", 7, 1),
-    KICK("Kick", 10, 3);
+    TACKLE("Tackle", 5, 1),
+    PHOENIX("Phoenix", 9, 1),
+    PYROBALL("Pyroball", 15, 5);
+    
     
     private final String name;
     private int damage;
     private int requiredLevel;
     
-    private BasicSkills(final String name, final int damage, final int requiredLevel) {
+    private FMageSkills(final String name, final int damage, final int requiredLevel) {
         this.name = name;
         this.damage = damage;
         this.requiredLevel = requiredLevel;
@@ -20,16 +21,19 @@ public enum BasicSkills implements Skill {
      * @return returns the name with the first letter capitalized only
      *          (this.name() returns the full capitalized name, we don't like it)
      */
-    public String getName() {
-        return this.name;       
-    }
-
+    @Override
     public int getDamage() {
         return this.damage;
     }
-    
+
+    @Override
     public int getRequiredLevel() {
         return this.requiredLevel;
+    }
+    
+    @Override
+    public String toString() {
+        return this.name;
     }
     
 }
