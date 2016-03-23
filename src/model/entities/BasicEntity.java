@@ -135,7 +135,7 @@ public class BasicEntity implements Entity {
         private int hp = BasicEntity.STANDARD_HP;
         private int level = BasicEntity.MINLEVEL;
         private int speed = BasicEntity.STANDARD_SPEED;
-        private List<Skill> skillList = Role.FMAGE.getSkillList();
+        private List<Skill> skillList = Role.FMAGE.getSkillList();;
 
         public T name(final String name) {
             this.name = name;

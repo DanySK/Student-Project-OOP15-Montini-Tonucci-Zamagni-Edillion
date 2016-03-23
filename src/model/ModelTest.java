@@ -15,7 +15,7 @@ import model.skills.Skill;
 import model.stages.Stage;
 import model.stages.StageData;
 
-public class Test {
+public class ModelTest {
 
     @org.junit.Test
     public void testNewEntity() {
