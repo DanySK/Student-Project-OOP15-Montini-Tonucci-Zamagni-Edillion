@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import model.entities.BasicMonster;
+import model.entities.MonsterTemplates;
 import model.entities.Entity;
 import model.entities.MonsterFactory;
 
@@ -17,19 +17,17 @@ public class StageData {
     /**
      * Adding stages data
      */
-    static { //Se lento/occupa troppa memoria andrà caricato progressivamente da file/database
+    private StageData() { 
         MonsterFactory factory = new MonsterFactory();
         List<Entity> mList = new ArrayList<>();
-        mList.add(factory.createMonster(BasicMonster.GOBLIN));
-        mList.add(factory.createMonster(BasicMonster.GOBLIN));
+        mList.add(factory.createMonster(MonsterTemplates.GOBLIN));
+        mList.add(factory.createMonster(MonsterTemplates.GOBLIN));
 
         stages.add(new StageImpl("Stage 1", 45, new ArrayList<Entity>(mList)));
-        stages.add(new StageImpl("Stage 2", 123, new ArrayList<Entity>(Collections.singletonList(factory.createMonster(BasicMonster.GOBLIN)))));
-        stages.add(new StageImpl("Stage 3", 111, new ArrayList<Entity>(Collections.singletonList(factory.createMonster(BasicMonster.UOMOGATTO)))));
-        stages.add(new StageImpl("Stage 4", 243, new ArrayList<Entity>()));
-    }
-
-    private StageData() { };
+        stages.add(new StageImpl("Stage 2", 123, new ArrayList<Entity>(Collections.singletonList(factory.createMonster(MonsterTemplates.GOBLIN)))));
+        stages.add(new StageImpl("Stage 3", 111, new ArrayList<Entity>(Collections.singletonList(factory.createMonster(MonsterTemplates.UOMOGATTO)))));
+        stages.add(new StageImpl("Stage 4", 243, new ArrayList<Entity>()));        
+    };
 
     public static StageData getData() {
         if (SINGLETON == null) {

@@ -2,13 +2,13 @@ package model.entities;
 
 public class MonsterFactory {
 
-    public Entity createMonster(final BasicMonster enemy){
+    public Entity createMonster(final MonsterTemplates enemy){
         return new BasicEntity.Builder<>()
-                              .name(enemy.get().getName())
-                              .hp(enemy.get().getHp())
-                              .level(enemy.get().getLevel())
-                              .speed(enemy.get().getSpeed())
-                              .skillList(enemy.get().getSkillList())
+                              .name(enemy.getName())
+                              .hp(enemy.getHp())
+                              .level(enemy.getLevel())
+                              .speed(enemy.getSpeed())
+                              .skillType(enemy.getAssign())
                               .build();
     }
 

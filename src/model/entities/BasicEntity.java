@@ -1,46 +1,48 @@
 package model.entities;
 
-import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import model.skills.Skill;
+import model.skills.Skills;
+import model.skills.SkillType;
+import model.skills.SkillProvider;
 
 
 public class BasicEntity implements Entity {
 
     public final static int MINLEVEL = 1;
     public final static int MAXLEVEL = 20;
+    public final static int MIN_SPEED = 1;
     public final static int STANDARD_SPEED = 5;
     public final static int STANDARD_HP = 100;
 
     private final String name;
-    private int hp = BasicEntity.STANDARD_HP;
-    private int level = BasicEntity.MINLEVEL;
-    private int speed = BasicEntity.STANDARD_SPEED; //attacchi al secondo (un attacco ogni 60/speed secondi)
-    private List<Skill> skillList;
+    private int hp;
+    private int level;
+    private int speed; //attacchi al secondo (un attacco ogni 60/speed secondi)
+    private List<Skills> skillList;
 
     /**
      * @param name entity's name
      * @param hp entity's hitpoint
      * @param skillList entity's skillset
      */
-    private BasicEntity(final String name, final int hp, final int level, final int speed, final List<Skill> skillList) throws IllegalArgumentException {
+    private BasicEntity(final String name, final int hp, final int level, final int speed, final SkillType[] types) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("Insert a name not null");
         }
         if (level > BasicEntity.MAXLEVEL || level < BasicEntity.MINLEVEL) {
             throw new IllegalArgumentException("Level outside the allowed range: " + level + " (" + BasicEntity.MINLEVEL + " - " + BasicEntity.MAXLEVEL + ")");
         }
-        if (speed < 1) {
+        if (speed < BasicEntity.MIN_SPEED) {
             throw new IllegalArgumentException("Speed parameter must be higher than 0 (your speed: " + speed + ")");
         }
         this.name = name;
         this.hp = hp;
         this.level = level;
         this.speed = speed;
-        this.skillList = new ArrayList<Skill>(skillList);
+        SkillProvider provider = SkillProvider.get();
+        this.skillList = provider.getSkillList(types);
     }
 
     @Override
@@ -91,23 +93,23 @@ public class BasicEntity implements Entity {
     public void setSpeed(final int speed) {
         this.speed = speed;
     }
-
+    
     @Override
-    public List<Skill> getSkillList() {
+    public List<Skills> getSkillList() {
         return this.skillList;
     }
 
-    public List<Skill> getAllowedSkillList() {
+    public List<Skills> getAllowedSkillList() {
         return this.skillList.stream().filter(s -> s.getRequiredLevel() <= this.level).collect(Collectors.toList());
     }
 
     @Override
-    public Skill getSkill(final int index) {
+    public Skills getSkill(final int index) {
         return this.skillList.get(index);
     }
 
     @Override
-    public void setSkillList(final List<Skill> skillList) {
+    public void setSkillList(final List<Skills> skillList) {
         this.skillList = skillList;
     }
 
@@ -132,10 +134,11 @@ public class BasicEntity implements Entity {
     @SuppressWarnings("unchecked")
     public static class  Builder<T extends Builder<? extends T>> {
         private String name;
-        private int hp = BasicEntity.STANDARD_HP;
-        private int level = BasicEntity.MINLEVEL;
-        private int speed = BasicEntity.STANDARD_SPEED;
-        private List<Skill> skillList = Role.FMAGE.getSkillList();;
+        private int hp;
+        private int level;
+        private int speed;
+        private int mana;
+        private SkillType[] types;
 
         public T name(final String name) {
             this.name = name;
@@ -157,22 +160,20 @@ public class BasicEntity implements Entity {
             return (T) this;
         }
 
-        public T skillArr(final Skill[] skillArr) {
-            this.skillList = new ArrayList<Skill>(Arrays.asList(skillArr));
+        public T skillType(final SkillType... types) {
+            this.types = types;
             return (T) this;
         }
-
-        public T skillList(final List<Skill> skillList) {
-            this.skillList = skillList;
-            return (T) this;
-        }
-
+        
+        //TODO Risistemare con optional e spostare qua i controlli, non sul costruttores
         public BasicEntity build() throws IllegalArgumentException {
+            
             return new BasicEntity(this);
         }
     }
 
     protected BasicEntity(final Builder<?> builder) {
-        this(builder.name, builder.hp, builder.level, builder.speed, builder.skillList);
+        this(builder.name, builder.hp, builder.level, builder.speed, builder.types);
     }
+
 }

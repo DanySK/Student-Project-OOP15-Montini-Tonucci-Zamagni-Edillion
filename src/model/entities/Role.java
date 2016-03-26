@@ -1,24 +1,37 @@
 package model.entities;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import model.skills.Skill;
-import model.skills.BasicSkills;
-import model.skills.FMageSkills;
+import model.skills.Skills;
+import model.skills.SkillType;
+import model.skills.SkillProvider;
 
 public enum Role {
-    WARRIOR(BasicSkills.values()),
-    FMAGE(FMageSkills.values());
+    
+    WARRIOR("Warrior", SkillType.BASIC, SkillType.MELEE),
+    ARCHER("Archer"),
+    FIREMAGE("Fire Mage", SkillType.BASIC, SkillType.FIRESPELL),
+    WHITEMAGE("White Mage");
 
-    private List<Skill> skillList;
+    private final String name;
+    private SkillType[] type;
 
-    private Role(Skill[] skillList) {
-        this.skillList = new ArrayList<Skill>(Arrays.asList((skillList)));
+    private Role(String name, SkillType... type) {
+        this.name = name;
+        this.type = type;
     }
 
-    public List<Skill> getSkillList() {
-        return skillList;
+    public SkillType[] getSkillType() {
+        return this.type;
     }
+    
+    public List<Skills> getSkillList() {
+        final SkillProvider provider = SkillProvider.get();
+        return provider.getSkillList(this.type);
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
 }

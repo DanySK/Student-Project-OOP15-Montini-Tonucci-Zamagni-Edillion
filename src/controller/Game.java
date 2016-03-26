@@ -33,6 +33,5 @@ public class Game implements GameEngine{
     public void buildHero(Hero hero) {
         // TODO Auto-generated method stub
         
-    }
-    
+    } 
 }

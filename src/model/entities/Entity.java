@@ -2,7 +2,7 @@ package model.entities;
 
 import java.util.List;
 
-import model.skills.Skill;
+import model.skills.Skills;
 
     /**
      * 
@@ -46,28 +46,29 @@ public interface Entity {
     int getSpeed();
 
     void setSpeed(int speed);
-    
+
     /**
      * 
      * @return returns the skill's list
      */
-    List<Skill> getSkillList();
+    List<Skills> getSkillList();
     
-    /**
-     * 
-     * set the skill list.
-     */
-    void setSkillList(List<Skill> skillList);
-
     /**
      * 
      * @return returns only allowed skills (level capped) 
      */
-    List<Skill> getAllowedSkillList();
+    List<Skills> getAllowedSkillList();
 
     /**
      * 
      * @return returns a skill data
      */
-    Skill getSkill(int index);
+    Skills getSkill(int index);
+    
+    /**
+     * 
+     */
+
+    void setSkillList(List<Skills> skillList);
+    
 }
