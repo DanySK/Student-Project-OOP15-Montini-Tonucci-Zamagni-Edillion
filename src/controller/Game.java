@@ -26,7 +26,7 @@ public class Game implements GameEngine{
 
     @Override
     public void loadStage(int index) {
-        this.stage = StageData.getData().getStage(index);
+        this.stage = StageData.TUTORIAL;
     }
 
     @Override

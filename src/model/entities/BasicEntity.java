@@ -1,48 +1,78 @@
 package model.entities;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import model.skills.Skills;
+import model.skills.Skill;
 import model.skills.SkillType;
-import model.skills.SkillProvider;
 
-
+/**
+ * The basic entity that build monsters and gets extended by Heroes.
+ */
 public class BasicEntity implements Entity {
 
-    public final static int MINLEVEL = 1;
-    public final static int MAXLEVEL = 20;
+    /**
+     * Minimum level allowed.
+     */
+    public final static int MIN_LEVEL = 1;
+
+    /**
+     * Maximum level allowed.
+     */
+    public final static int MAX_LEVEL = 20;
+
+    /**
+     * Minimum speed allowed.
+     */
     public final static int MIN_SPEED = 1;
+
+    /**
+     * Standard speed value (assigned if speed is not explicit on builder).
+     */
     public final static int STANDARD_SPEED = 5;
+
+    /**
+     * Standard hitpoint value (assigned if hp is not explicit on builder).
+     */
     public final static int STANDARD_HP = 100;
 
     private final String name;
     private int hp;
     private int level;
     private int speed; //attacchi al secondo (un attacco ogni 60/speed secondi)
-    private List<Skills> skillList;
+    private List<Skill> skillList;
 
     /**
      * @param name entity's name
      * @param hp entity's hitpoint
      * @param skillList entity's skillset
      */
-    private BasicEntity(final String name, final int hp, final int level, final int speed, final SkillType[] types) throws IllegalArgumentException {
+    private BasicEntity(final String name, Optional<Integer> hp, Optional<Integer> level, Optional<Integer> speed, final SkillType[] types) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("Insert a name not null");
         }
-        if (level > BasicEntity.MAXLEVEL || level < BasicEntity.MINLEVEL) {
-            throw new IllegalArgumentException("Level outside the allowed range: " + level + " (" + BasicEntity.MINLEVEL + " - " + BasicEntity.MAXLEVEL + ")");
+        if (!hp.isPresent()) {
+            hp = Optional.of(BasicEntity.STANDARD_HP);
         }
-        if (speed < BasicEntity.MIN_SPEED) {
+        if (!level.isPresent()) {
+            level = Optional.of(BasicEntity.MIN_LEVEL);
+        }
+        if (!speed.isPresent()) {
+            speed = Optional.of(BasicEntity.MIN_SPEED);
+        }
+        if (level.isPresent() && (level.get().intValue() > BasicEntity.MAX_LEVEL || level.get().intValue() < BasicEntity.MIN_LEVEL)) {
+            throw new IllegalArgumentException("Level outside the allowed range: " + level + " (" + BasicEntity.MIN_LEVEL + " - " + BasicEntity.MAX_LEVEL + ")");
+        }
+        if (speed.isPresent() && (speed.get().intValue() < BasicEntity.MIN_SPEED)) {
             throw new IllegalArgumentException("Speed parameter must be higher than 0 (your speed: " + speed + ")");
         }
+
         this.name = name;
-        this.hp = hp;
-        this.level = level;
-        this.speed = speed;
-        SkillProvider provider = SkillProvider.get();
-        this.skillList = provider.getSkillList(types);
+        this.hp = hp.get();
+        this.level = level.get();
+        this.speed = speed.get();
+        this.skillList = SkillType.getSkillList(types);
     }
 
     @Override
@@ -93,24 +123,20 @@ public class BasicEntity implements Entity {
     public void setSpeed(final int speed) {
         this.speed = speed;
     }
-    
+
     @Override
-    public List<Skills> getSkillList() {
+    public List<Skill> getSkillList() {
         return this.skillList;
     }
 
-    public List<Skills> getAllowedSkillList() {
+    @Override
+    public List<Skill> getAllowedSkillList() {
         return this.skillList.stream().filter(s -> s.getRequiredLevel() <= this.level).collect(Collectors.toList());
     }
 
     @Override
-    public Skills getSkill(final int index) {
+    public Skill getSkill(final int index) {
         return this.skillList.get(index);
-    }
-
-    @Override
-    public void setSkillList(final List<Skills> skillList) {
-        this.skillList = skillList;
     }
 
     @Override
@@ -123,6 +149,51 @@ public class BasicEntity implements Entity {
                  .append("\n\tSkills: ").append(this.getAllowedSkillList().toString())
                  .toString();
     }
+    
+    
+
+
+     /**
+      * Equals override, used mainly on testing purpose.
+      */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        BasicEntity other = (BasicEntity) obj;
+        if (hp != other.hp) {
+            return false;
+        }
+        if (level != other.level) {
+            return false;
+        }
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (skillList == null) {
+            if (other.skillList != null) {
+                return false;
+            }
+        } else if (!skillList.equals(other.skillList)) {
+            return false;
+        }
+        if (speed != other.speed) {
+            return false;
+        }
+        return true;
+    }
+
 
 
     /**
@@ -134,44 +205,75 @@ public class BasicEntity implements Entity {
     @SuppressWarnings("unchecked")
     public static class  Builder<T extends Builder<? extends T>> {
         private String name;
-        private int hp;
-        private int level;
-        private int speed;
-        private int mana;
+        private Optional<Integer> hp = Optional.empty();
+        private Optional<Integer> level = Optional.empty();
+        private Optional<Integer> speed = Optional.empty();
         private SkillType[] types;
 
+        /**
+         * Adds a name to the builder instance.
+         * @param name entity's name
+         * @return builder instance
+         */
         public T name(final String name) {
             this.name = name;
             return (T) this;
         }
 
+        /**
+         * Adds an hp value to the builder instance.
+         * @param hp entity's hp
+         * @return builder instance
+         */
         public T hp(final int hp) {
-            this.hp = hp;
+            this.hp = Optional.ofNullable(hp);
             return (T) this;
         }
 
+        /**
+         * Adds a level value to the builder instance.
+         * @param level entity's level
+         * @return builder instance
+         */
         public T level(final int level) {
-            this.level = level;
+            this.level = Optional.ofNullable(level);
             return (T) this;
         }
 
+        /**
+         * Adds a speed value to the builder instance.
+         * @param speed entity's speed
+         * @return builder instance
+         */
         public T speed(final int speed) {
-            this.speed = speed;
+            this.speed = Optional.ofNullable(speed);
             return (T) this;
         }
 
+        /**
+         * Adds multiple skilletypes to the builder instance.
+         * @param types entity's skilltypes
+         * @return builder instance
+         */
         public T skillType(final SkillType... types) {
             this.types = types;
             return (T) this;
         }
-        
-        //TODO Risistemare con optional e spostare qua i controlli, non sul costruttores
-        public BasicEntity build() throws IllegalArgumentException {
-            
+
+        /**
+         * Builds the Entity.
+         * @return the new entity to be built.
+         * @throws IllegalArgumentException 
+         */
+        public BasicEntity build() {
             return new BasicEntity(this);
         }
     }
 
+    /**
+     * Builds the entity by calling the private constructor.
+     * @param builder data structure where constructor can get data
+     */
     protected BasicEntity(final Builder<?> builder) {
         this(builder.name, builder.hp, builder.level, builder.speed, builder.types);
     }

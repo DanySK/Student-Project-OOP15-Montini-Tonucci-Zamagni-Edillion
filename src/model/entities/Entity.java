@@ -2,11 +2,11 @@ package model.entities;
 
 import java.util.List;
 
-import model.skills.Skills;
+import model.skills.Skill;
 
-    /**
-     * 
-     */
+/**
+ * Interface for monsters and heroes.
+ */
 public interface Entity {
 
     /**
@@ -23,52 +23,68 @@ public interface Entity {
 
     /**
      * 
-     * @param hp set hitpoints value
+     * @param hp
+     *            set hitpoints value
      */
     void setHp(final int hp);
 
     /**
      * 
-     * @param hp increase hitpoints value
+     * @param hp
+     *            increase hitpoints value
      */
     void increaseHp(int hp);
 
     /**
      * 
-     * @param hp decrease hitpoints value
+     * @param hp
+     *            decrease hitpoints value
      */
     void decreaseHp(int hp);
 
+    /**
+     * @return the level
+     */
     int getLevel();
-    
-    void setLevel(int level); 
-    
+
+    /**
+     * Sets entity's level.
+     * 
+     * @param level
+     *            new level to be set
+     */
+    void setLevel(int level);
+
+    /**
+     * @return entity's speed
+     */
     int getSpeed();
 
+    /**
+     * Sets entity's speed.
+     * 
+     * @param speed
+     *            new speed to be set
+     */
     void setSpeed(int speed);
 
     /**
      * 
      * @return returns the skill's list
      */
-    List<Skills> getSkillList();
-    
-    /**
-     * 
-     * @return returns only allowed skills (level capped) 
-     */
-    List<Skills> getAllowedSkillList();
+    List<Skill> getSkillList();
 
     /**
      * 
+     * @return returns only allowed skills (level capped)
+     */
+    List<Skill> getAllowedSkillList();
+
+    /**
+     * @param index
+     *            gets that skill
      * @return returns a skill data
      */
-    Skills getSkill(int index);
-    
-    /**
-     * 
-     */
+    Skill getSkill(int index);
 
-    void setSkillList(List<Skills> skillList);
-    
 }

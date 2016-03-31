@@ -1,52 +1,69 @@
 package model.stages;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import model.entities.MonsterTemplates;
 import model.entities.Entity;
 import model.entities.MonsterFactory;
+import model.entities.MonsterTemplates;
 
-public class StageData {
+public enum StageData implements Stage {
+    TUTORIAL("Tutorial", MonsterTemplates.PEASANT),
+    FIRSTMISSION("First mission", MonsterTemplates.GOBLIN),
+    THECAVE("The Cave", MonsterTemplates.UOMOGATTO),
+    UNFAIR("Unfair", MonsterTemplates.PEASANT, MonsterTemplates.PEASANT);
 
-    private static StageData SINGLETON = null;
-    private static List<Stage> stages = new ArrayList<>();
-    private static int index;
+
+    private final static float EXP_HP_MOD = 1.5F;
+    private final String name;
+    private final List<Entity> enemyList;
+    private final int reward;
+
+    StageData(final String name, final MonsterTemplates... enemyList) {
+        this.name = name;
+        MonsterFactory factory = new MonsterFactory();
+        this.enemyList = Arrays.asList(enemyList).stream().map(e -> factory.createMonster(e))
+                .collect(Collectors.toList());
+        this.reward = this.calculateReward();
+    }
+
+    public static boolean isCleared(List<Entity> enemyList) { // if there are enemies with more than
+                                                              // 0 hp, return !true (= false)
+        return !enemyList.stream().anyMatch(m -> m.getHp() > 0);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 
     /**
-     * Adding stages data
+     * @return the reward
      */
-    private StageData() { 
-        MonsterFactory factory = new MonsterFactory();
-        List<Entity> mList = new ArrayList<>();
-        mList.add(factory.createMonster(MonsterTemplates.GOBLIN));
-        mList.add(factory.createMonster(MonsterTemplates.GOBLIN));
-
-        stages.add(new StageImpl("Stage 1", 45, new ArrayList<Entity>(mList)));
-        stages.add(new StageImpl("Stage 2", 123, new ArrayList<Entity>(Collections.singletonList(factory.createMonster(MonsterTemplates.GOBLIN)))));
-        stages.add(new StageImpl("Stage 3", 111, new ArrayList<Entity>(Collections.singletonList(factory.createMonster(MonsterTemplates.UOMOGATTO)))));
-        stages.add(new StageImpl("Stage 4", 243, new ArrayList<Entity>()));        
-    };
-
-    public static StageData getData() {
-        if (SINGLETON == null) {
-            synchronized (StageData.class) {
-                if (SINGLETON == null) {
-                    SINGLETON = new StageData();
-                    index = 0;
-                }
-            }
-        }
-        return SINGLETON;
+    @Override
+    public int getReward() {
+        return reward;
     }
 
-    public Stage getNext() {
-        return stages.get(index++);
+    @Override
+    public List<Entity> getEnemyList() {
+        return new ArrayList<Entity>(enemyList);
     }
 
-    public Stage getStage(final int index) {
-        return stages.get(index);
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        return sb.append("Name: ").append(this.name).append("\nEnemies: ").append(this.enemyList).append("\nReward: ")
+                .append(this.reward).append("exp").toString();
+    }
+
+    /**
+     * Little algo that calculates a fair reward for each stage.
+     * 
+     * @return the reward value.
+     */
+    private int calculateReward() {
+        return this.enemyList.stream().mapToInt(e -> Math.round((e.getHp() * EXP_HP_MOD * e.getLevel()))).sum();
     }
 
 }

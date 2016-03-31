@@ -186,6 +186,14 @@
             <ruleset>Basic JSP</ruleset>
         </rule>
         <rule>
+            <name>AvoidDeeplyNestedIfStmts</name>
+            <ruleset>Basic Velocity</ruleset>
+        </rule>
+        <rule>
+            <name>AvoidReassigningParameters</name>
+            <ruleset>Basic Velocity</ruleset>
+        </rule>
+        <rule>
             <name>CollapsibleIfStatements</name>
             <ruleset>Basic Velocity</ruleset>
         </rule>
@@ -462,10 +470,6 @@
             <ruleset>Design</ruleset>
         </rule>
         <rule>
-            <name>AvoidDeeplyNestedIfStmts</name>
-            <ruleset>Design</ruleset>
-        </rule>
-        <rule>
             <name>AvoidInstanceofChecksInCatchClause</name>
             <ruleset>Design</ruleset>
         </rule>
@@ -475,10 +479,6 @@
         </rule>
         <rule>
             <name>AvoidProtectedMethodInFinalClassNotExtending</name>
-            <ruleset>Design</ruleset>
-        </rule>
-        <rule>
-            <name>AvoidReassigningParameters</name>
             <ruleset>Design</ruleset>
         </rule>
         <rule>

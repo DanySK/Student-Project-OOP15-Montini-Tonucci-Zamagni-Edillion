@@ -12,6 +12,4 @@ public interface Stage {
 
     List<Entity> getEnemyList();
 
-    boolean isCleared();
-
 }
