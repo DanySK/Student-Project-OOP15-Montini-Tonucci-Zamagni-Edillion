@@ -1,12 +1,28 @@
 package controller;
 
+import java.util.Optional;
+
 import model.entities.Entity;
 import model.entities.Hero;
-import model.stages.Stage;
-import model.stages.StageData;
+import model.entities.Role;
 
 public class Game implements GameEngine{
-    private Stage stage;
+    
+    private static Optional<Game> singleton = Optional.empty();
+    private int index;
+    public boolean win;
+    
+    
+    /**
+     * @return the SINGLETON instance of the class.
+     */
+    public static synchronized GameEngine getInstance() {
+        if (!singleton.isPresent()) {
+            singleton = Optional.of(new Game());
+        }
+        return singleton.get();
+    }
+    
     
     public Game() {
         /* Qui il gioco inizia con la creazione (o caricamento da db) dei dati dell'eroe
@@ -14,20 +30,21 @@ public class Game implements GameEngine{
          * Inizia la battaglia tra l'eroe e i nemici presi da stage.getEnemyList();
          * Per vedere se uno stage è finito c'è la funzione stage.IsCleared() che torna un boolean
          */
+        
+        Hero hero = new Hero.Builder().name("Pippo").level(1).speed(5).role(Role.WARRIOR).build();
+        
+        index = 1;
+        
+        
+        StageLoop stage = new StageLoopImp();
+        
+        win = stage.play(index, hero);
+        
+        System.out.println(stage);
+        
     }
     
-    @Override
-    public void attack(Entity attacker, Entity target, int skillId) {
-        target.decreaseHp(attacker.getSkill(skillId).getDamage());
-        
-        //Stampa da togliere, solo per test (visualizzare il risultato è un compito da delegare alla view
-        System.out.println(attacker.getName() + " attacks " + target.getName() + " with " + attacker.getSkill(skillId)); 
-    }
-
-    @Override
-    public void loadStage(int index) {
-        this.stage = StageData.TUTORIAL;
-    }
+    
 
     @Override
     public void buildHero(Hero hero) {
