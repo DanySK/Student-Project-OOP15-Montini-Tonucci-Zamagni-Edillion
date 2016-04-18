@@ -4,12 +4,14 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import model.entities.BasicEntity;
 import model.entities.Hero;
 import model.entities.MonsterFactory;
 import model.entities.MonsterTemplates;
 import model.entities.Role;
+import model.skills.SkillData;
 import model.stages.StageData;
 
 /**
@@ -38,6 +40,19 @@ public class ModelTest {
     public void testProvider() {
         MonsterFactory factory = new MonsterFactory();
         assertEquals(Arrays.asList(factory.createMonster(MonsterTemplates.PEASANT)), StageData.TUTORIAL.getEnemyList());
+    }
+    
+    @org.junit.Test
+    public void testSkillModifier() {
+        SkillData skill = SkillData.FLARE;
+        for (int i = 0; i < 100; i++) {
+            int dmg = skill.useSkill();
+            if (dmg > skill.getDamage() + skill.getModifier() || dmg < skill.getDamage() - skill.getModifier()) {
+                fail();
+            }
+           // System.out.println(dmg);
+        }
+
     }
 
     /**

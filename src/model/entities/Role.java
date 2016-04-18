@@ -3,7 +3,6 @@ package model.entities;
 import java.util.List;
 
 import model.skills.Skill;
-import model.skills.SkillData;
 import model.skills.SkillType;
 
 /**

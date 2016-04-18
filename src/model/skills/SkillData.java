@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -77,6 +78,12 @@ public enum SkillData implements Skill {
     @Override
     public SkillType[] getAssign() {
         return assign;
+    }
+    
+    @Override
+    public int useSkill() {
+        Random rnd = new Random();
+        return this.damage + rnd.nextInt(this.modifier * 2) - this.modifier;
     }
 
     @Override
