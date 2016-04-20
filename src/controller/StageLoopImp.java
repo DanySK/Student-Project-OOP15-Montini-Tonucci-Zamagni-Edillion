@@ -7,16 +7,16 @@ import java.util.Scanner;
 
 import model.entities.Entity;
 import model.entities.Hero;
-import model.entities.MonsterTemplates;
 import model.skills.Skill;
 import model.stages.Stage;
 import model.stages.StageData;
 
 public class StageLoopImp implements StageLoop {
     
+    public static final double DIV_SPEED = 30.00;
     private Stage stage;
     private Hero hero;
-    private int counter, hpHero, num_opp, y, x;
+    private int counter, hpHero, numOpp, numMossa, speedHero;
     private volatile boolean pausa = true;
     
     @Override
@@ -24,6 +24,8 @@ public class StageLoopImp implements StageLoop {
         hero = heroP;
         hpHero = hero.getHp();
         loadStage(stagePlay);
+        
+        speedHero = (int) ((DIV_SPEED/hero.getSpeed())*1000);
         
         final List<Opponent> listOpp = new ArrayList<>();
      
@@ -34,11 +36,8 @@ public class StageLoopImp implements StageLoop {
             final Opponent mon = new Opponent(monster);
             listOpp.add(mon);
             
-            num_opp++;
             mon.start();
         }
-        
-        hero.setHp(20);
         
         while (!(StageData.isCleared(stage.getEnemyList())) && hero.getHp() > 0 ) {
             
@@ -47,72 +46,84 @@ public class StageLoopImp implements StageLoop {
             }
             
             //SELEZIONA AVVERSARIO
-            if ( num_opp != 1 ) {
-                for ( y = 0 ; y < num_opp ; y++ ) {
-                    System.out.println( (y+1) + ") " + stage.getEnemyList().get(y).getName() );
+            if ( listOpp.size() != 1 ) {
+                for ( numOpp = 0 ; numOpp < listOpp.size() ; numOpp++ ) {
+                    if ( stage.getEnemyList().get(numOpp).getHp() > 0 ) {
+                        System.out.println( (numOpp+1) + ") " + stage.getEnemyList().get(numOpp).getName() );
+                    }
+                    
                 }
                 System.out.println("Quale avversario vuoi selezionare? ");
                 Scanner input = new Scanner(System.in);
-                y = input.nextInt();
-                y--;
+                numOpp = input.nextInt();
+                numOpp--;
             }
             
             
-            // PRESA DELL'ATTACCO
-            x=0;
-            for ( Skill e : hero.getSkillList() ) {
-                if (e.getRequiredLevel() <= hero.getLevel()) {
-                    System.out.println( (x+1) + ") " + e );
-                }
-                x++;
+            // SELEZIONA ATTACCO
+            numMossa=0;
+            for ( Skill mossa : hero.getAllowedSkillList() ) {
+                System.out.println( (numMossa+1) + ") " + mossa.getName() );
+                numMossa++;
             }
             System.out.println("Quale mossa vuoi selezionare? ");
             Scanner input = new Scanner(System.in);
-            x = input.nextInt();
-            x--;
-            System.out.println("Attacco con: " + hero.getSkill(x));
+            numMossa = input.nextInt();
+            numMossa--;
 
             agent.pausaCounting();
             
             try {
-                Thread.sleep((8 - hero.getSpeed()) * 1000);
+                Thread.sleep(speedHero);
                 
-                attack(hero, stage.getEnemyList().get(y), x);
-                System.out.println("Mostro attaccato: " + stage.getEnemyList().get(y).getName() + " Vita: " + stage.getEnemyList().get(y).getHp() );
-            
+                if (hero.getHp() > 0) {
+                    attack(hero, stage.getEnemyList().get(numOpp), numMossa);
+                    System.out.println("Mostro attaccato: " + 
+                                        stage.getEnemyList().get(numOpp).getName() +
+                                        " Attacco con: " + hero.getSkill(numMossa).getName() +
+                                        " Vita: " + 
+                                        stage.getEnemyList().get(numOpp).getHp() );
+                }
+                
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
         
         agent.stopCounting();
-        hero.setHp(hpHero);
         
-        return false;
+        if ( hero.getHp() <= 0) {
+            hero.setHp(hpHero);
+            return false;
+        }
+        hero.setHp(hpHero);
+        System.out.println("Hero ha " + hero.getExp() + "       e ne guadagnerà: " + stage.getReward() + "      per il liv suc ne servono: " +hero.expToLevelUp());
+        hero.gainExp(stage.getReward());
+        System.out.println("Hero ha " + hero.getExp() + "       e ne ha guadagnati: " + stage.getReward() + "      per il liv suc ne servono: " +hero.expToLevelUp());
+        return true;
     }
     
 
 
     @Override
     public void attack(Entity attacker, Entity target, int skillId) {
-        target.decreaseHp(attacker.getSkill(skillId).getDamage());
+        target.decreaseHp(attacker.getSkill(skillId).useSkill());
     }
 
     @Override
     public void loadStage(int index) {
         switch (index) {
         case 0:
-            this.stage = StageData.TUTORIAL;
+            stage = StageData.TUTORIAL;
             break;
         case 1:
-            this.stage = StageData.FIRSTMISSION;
+            stage = StageData.FIRSTMISSION;
             break;
         case 2:
-            this.stage = StageData.THECAVE;
+            stage = StageData.THECAVE;
             break;
         case 3:
-            this.stage = StageData.UNFAIR;
+            stage = StageData.UNFAIR;
             break;
         default: 
         }
@@ -122,34 +133,57 @@ public class StageLoopImp implements StageLoop {
     private class Opponent extends Thread {
         
         private Entity monster;
+        private int evit_repit, speed, i_skill;
+        private boolean playerLost;
+        
         
         public Opponent(Entity monsterP) {
             monster = monsterP;
         }
 
-        public void run() {
-            while ( monster.getHp() > 0 && hero.getHp() > 0 ) {
-                
-                if ( colpisce() && !pausa ) {
-                    attack(monster, hero, 0);
-                    System.out.println("Ha attaccato " + monster.getName());
-                    System.out.println("Vita rimanente eroe " + hero.getHp() );
-                }
-
+        public synchronized void run() {
+            speed = (int) ((DIV_SPEED/monster.getSpeed())*100);
+            
+            while ( monster.getHp() > 0 && !playerLost ) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(10);
+                    
+                    if ( !pausa && colpisce() ) {
+                        
+                        
+                        Skill skill = monster.getAllowedSkillList().stream()
+                                                    //.filter(p->p.getMana()<monster.getMana)
+                                                    .max((p1, p2) -> Integer.compare( p1.getDamage(), p2.getDamage())).get();
+                        
+                        int count = 0;
+                        for (Skill s : monster.getSkillList()) {
+                            if (skill == s) {
+                                i_skill = count;
+                            }
+                            count++;
+                        }
+                        
+                        attack(monster, hero, i_skill);
+                        System.out.println(monster.getName() + " ha attaccato " + "hero");
+                        System.out.println("Vita rimanente eroe " + hero.getHp() );
+                        if (hero.getHp() <= 0) {
+                            playerLost = true;
+                        }
+                    }
                 } catch ( InterruptedException ex) {
                     // interrupted: added a system.out but there are much better ways to log exceptions
                     System.out.println("Something went wrong. " + ex);
                 }
-                
             }
         }
         
-        private boolean colpisce() {
-            if( counter % (8 - monster.getSpeed()) == 0 )
-                return true;
-            
+        private synchronized boolean colpisce() {
+            if( counter % speed == 0 ) {
+                if (evit_repit != counter) {
+                    evit_repit = counter;
+                    return true;
+                }
+            }
             return false;
         }
     }
@@ -160,17 +194,18 @@ public class StageLoopImp implements StageLoop {
 
         private volatile boolean stop;
 
-        public void run() {
+        public synchronized void run() {
             while (!stop) {
                 try {
+                    Thread.sleep(10);
                     if (!pausa) {
                         counter += 1;
-                        System.out.println("Aumentato: " + counter);
+                        /*if (counter % 10 == 0) {
+                            System.out.println("Aumentato: " + counter);
+                        }*/
+                        
                     }
-
-                    Thread.sleep(1000);
                 } catch ( InterruptedException ex) {
-                    // interrupted: added a system.out but there are much better ways to log exceptions
                     System.out.println("Something went wrong. " + ex);
                 }
             }
@@ -188,5 +223,4 @@ public class StageLoopImp implements StageLoop {
                 }
         }
     }
-
 }

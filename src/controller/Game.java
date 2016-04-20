@@ -1,15 +1,16 @@
 package controller;
 
 import java.util.Optional;
+import java.util.Scanner;
 
-import model.entities.Entity;
 import model.entities.Hero;
 import model.entities.Role;
 
 public class Game implements GameEngine{
     
+    public static final int NUM_STAGE = 4;
     private static Optional<Game> singleton = Optional.empty();
-    private int index;
+    private int index, fine;
     public boolean win;
     
     
@@ -31,16 +32,37 @@ public class Game implements GameEngine{
          * Per vedere se uno stage è finito c'è la funzione stage.IsCleared() che torna un boolean
          */
         
-        Hero hero = new Hero.Builder().name("Pippo").level(1).speed(5).role(Role.WARRIOR).build();
-        
-        index = 1;
+        Hero hero = new Hero.Builder().name("Pippo").hp(20).level(1).speed(5).role(Role.WARRIOR).build();
         
         
-        StageLoop stage = new StageLoopImp();
+        while ( index != NUM_STAGE+1 && fine != 2 ) {
+            
+            StageLoop stage = new StageLoopImp();
+            
+            System.out.println("Quale stage vuoi affrontare? ");
+            System.out.println("0) TUTORIAL     1)FIRSTMISSION  2)THECAVE       3)UNFAIR ");
+            Scanner input = new Scanner(System.in);
+            index = input.nextInt();
+            
+            System.out.println("STAGE N. " + index);
+            System.out.println();
+            if (stage.play(index, hero)) {
+                System.out.println("STAGE N. " + index + " SUPERATO");
+            }
+            else { 
+                System.out.println("STAGE N. " + index + " FALLITO"); 
+            }
+            System.out.println();
+            index++;
+
+            System.out.println("Vuoi terminare la partita? ");
+            System.out.println("1) no           2)si");
+            input = new Scanner(System.in);
+            fine = input.nextInt();
+        }
         
-        win = stage.play(index, hero);
         
-        System.out.println(stage);
+        System.out.println("FINE GAME!!!!!!!!!!!!!!!!!!");
         
     }
     
