@@ -16,6 +16,8 @@ public class MonsterFactory {
                               .hp(enemy.getHp())
                               .level(enemy.getLevel())
                               .speed(enemy.getSpeed())
+                              .mana(enemy.getMana())
+                              .manaRegen(enemy.getManaRegen())
                               .skillType(enemy.getAssign())
                               .build();
     }

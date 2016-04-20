@@ -16,30 +16,22 @@ public enum StageData implements Stage {
 
     private final static float EXP_HP_MOD = 1.5F;
     private final String name;
-    private final List<Entity> enemyList;
     private final int reward;
+    private final MonsterTemplates[] enemies;
+    private StageState state;
 
     StageData(final String name, final MonsterTemplates... enemyList) {
         this.name = name;
-        MonsterFactory factory = new MonsterFactory();
-        this.enemyList = Arrays.asList(enemyList).stream().map(e -> factory.createMonster(e))
-                .collect(Collectors.toList());
+        this.enemies = enemyList;
         this.reward = this.calculateReward();
-    }
-
-    public static boolean isCleared(List<Entity> enemyList) { // if there are enemies with more than
-                                                              // 0 hp, return !true (= false)
-        return !enemyList.stream().anyMatch(m -> m.getHp() > 0);
+        this.state = StageState.LOCKED;
     }
 
     @Override
     public String getName() {
         return name;
     }
-
-    /**
-     * @return the reward
-     */
+    
     @Override
     public int getReward() {
         return reward;
@@ -47,13 +39,25 @@ public enum StageData implements Stage {
 
     @Override
     public List<Entity> getEnemyList() {
-        return new ArrayList<Entity>(enemyList);
+        MonsterFactory factory = new MonsterFactory();
+        return Arrays.asList(this.enemies).stream().map(e -> factory.createMonster(e))
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public StageState getState() {
+        return this.state;
     }
 
     @Override
+    public void setState(StageState state) {
+        this.state = state;
+    }
+    
+    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        return sb.append("Name: ").append(this.name).append("\nEnemies: ").append(this.enemyList).append("\nReward: ")
+        return sb.append("Name: ").append(this.name).append("\nEnemies: ").append(this.getEnemyList()).append("\nReward: ")
                 .append(this.reward).append("exp").toString();
     }
 
@@ -63,7 +67,6 @@ public enum StageData implements Stage {
      * @return the reward value.
      */
     private int calculateReward() {
-        return this.enemyList.stream().mapToInt(e -> Math.round((e.getHp() * EXP_HP_MOD * e.getLevel()))).sum();
+        return this.getEnemyList().stream().mapToInt(e -> Math.round((e.getHp() * EXP_HP_MOD * e.getLevel()))).sum();
     }
-
 }

@@ -67,6 +67,34 @@ public interface Entity {
      *            new speed to be set
      */
     void setSpeed(int speed);
+    
+    /**
+     * 
+     * @return entity's mana 
+     */
+    int getMana();
+    
+    /**
+     * Sets entity's mana.
+     * 
+     * @param level
+     *            new mana to be set
+     */
+    void setMana(int mana);
+
+    /**
+     * 
+     * @return entity's manaregen
+     */
+    int getManaRegen();
+    
+    /**
+     * Sets entity's manaRegen.
+     * 
+     * @param manaRegen
+     *            new manaRegen to be set
+     */
+    void setManaRegen(int manaRegen);
 
     /**
      * 

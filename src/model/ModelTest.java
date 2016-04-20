@@ -4,15 +4,20 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import model.entities.BasicEntity;
+import model.entities.Entity;
 import model.entities.Hero;
 import model.entities.MonsterFactory;
 import model.entities.MonsterTemplates;
 import model.entities.Role;
 import model.skills.SkillData;
 import model.stages.StageData;
+import model.stages.StageState;
+import model.stages.Stages;
 
 /**
  * Test class for model.
@@ -32,6 +37,21 @@ public class ModelTest {
         assertEquals(BasicEntity.STANDARD_HP, hero.getHp()); //hitpoint not explained
         assertEquals(Role.WARRIOR, hero.getRole());
         }
+    
+    /**
+     * 
+     */
+    @org.junit.Test
+    public void testStage() {
+       StageData.TUTORIAL.setState(StageState.DONE);
+       StageData.THECAVE.setState(StageState.UNLOCKED);
+       Map<StageData, StageState> stageMap = Stages.generateStagesData();
+       System.out.println(stageMap.values());
+       StageData.FIRSTMISSION.setState(StageState.DONE);
+       System.out.println(Stages.generateStagesData().values());
+       Stages.setStagesData(stageMap);
+       System.out.println(stageMap.values());
+    }
 
     /**
      * Testing providers.

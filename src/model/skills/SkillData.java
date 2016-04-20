@@ -82,6 +82,9 @@ public enum SkillData implements Skill {
     
     @Override
     public int useSkill() {
+        if (this.modifier == 0) {
+            return this.damage;
+        }
         Random rnd = new Random();
         return this.damage + rnd.nextInt(this.modifier * 2) - this.modifier;
     }
