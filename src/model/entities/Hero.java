@@ -12,7 +12,7 @@ public class Hero extends BasicEntity {
 
     private final Role role;
     private int exp;
-    
+  
     private Inventory inventory;
 
     /**
@@ -21,7 +21,9 @@ public class Hero extends BasicEntity {
      */
     private Hero(final Builder builder) {
         super(builder);
+        super.globalStats.put(StatType.EXP, 0);
         this.role = builder.role;
+        
     }
 
     /**
@@ -30,7 +32,7 @@ public class Hero extends BasicEntity {
     public Role getRole() {
         return role;
     }
-
+   
     /**
      * @return Hero's exp
      */
@@ -45,12 +47,12 @@ public class Hero extends BasicEntity {
      */
     public int gainExp(final int reward) {
         this.exp = this.exp + reward;
-        if (this.getLevel() < BasicEntity.MAX_LEVEL) {
+        if (this.getStat(StatType.LEVEL, StatTime.GLOBAL) < BasicEntity.MAX_LEVEL) {
             while (this.exp > this.expToLevelUp()) {
                 this.levelUp();
             }
         }
-        return this.getLevel();
+        return this.getStat(StatType.LEVEL, StatTime.GLOBAL);
     }
 
     /**
@@ -59,7 +61,7 @@ public class Hero extends BasicEntity {
      * @return exp needed to level up
      */
     public int expToLevelUp() {
-        return this.getLevel() * 100;
+        return this.getStat(StatType.LEVEL, StatTime.GLOBAL) * 100;
     }
 
     @Override
@@ -75,7 +77,7 @@ public class Hero extends BasicEntity {
      * Function that makes the hero gain a level
      */
     private void levelUp() {
-        this.setLevel(this.getLevel() + 1);
+        this.setStat(StatType.LEVEL, 1, StatTime.GLOBAL, ActionType.INCREASE);
     }
 
     /**
@@ -107,7 +109,7 @@ public class Hero extends BasicEntity {
         }
 
     }
-
+    
     //TODO gestione dell'inventario
     private class Inventory {
         private Set<Usable> bag;

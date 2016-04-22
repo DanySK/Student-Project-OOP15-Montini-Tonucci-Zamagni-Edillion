@@ -1,5 +1,6 @@
 package model.entities;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,18 +42,15 @@ public class BasicEntity implements Entity {
      * Standard mana value (assigned if mana is not explicit on builder).
      */
     public static final int STANDARD_MANA = 50;
-    
+
     /**
      * Standard mana regen value (assigned if mana is not explicit on builder).
      */
     public static final int STANDARD_MANAREGEN = 5;
 
     private final String name;
-    private int hp;
-    private int level;
-    private int speed; // attacchi al secondo (un attacco ogni 60/speed secondi)
-    private int mana;
-    private int manaRegen;
+    protected EnumMap<StatType, Integer> globalStats = new EnumMap<>(StatType.class);
+    private EnumMap<StatType, Integer> currStats = new EnumMap<>(StatType.class);
     private List<Skill> skillList;
 
     /**
@@ -64,7 +62,9 @@ public class BasicEntity implements Entity {
      *            entity's skillset
      */
     private BasicEntity(final String name, Optional<Integer> hp, Optional<Integer> level, Optional<Integer> speed,
-            Optional<Integer> mana, Optional<Integer> manaRegen, final SkillType[] types) throws IllegalArgumentException {
+            Optional<Integer> mana, Optional<Integer> manaRegen, final SkillType[] types)
+                    throws IllegalArgumentException {
+        //TODO Controllo associato all'enum, con uno stream/ciclo unico
         if (name == null) {
             throw new IllegalArgumentException("Insert a name not null");
         }
@@ -93,12 +93,13 @@ public class BasicEntity implements Entity {
         }
 
         this.name = name;
-        this.hp = hp.get();
-        this.level = level.get();
-        this.speed = speed.get();
-        this.mana = mana.get();
-        this.manaRegen = manaRegen.get();
+        globalStats.put(StatType.HP, hp.get());
+        globalStats.put(StatType.LEVEL, level.get());
+        globalStats.put(StatType.SPEED, speed.get());
+        globalStats.put(StatType.MANA, mana.get());
+        globalStats.put(StatType.MANAREGEN, manaRegen.get());
         this.skillList = SkillType.getSkillList(types);
+        this.copyStats();
     }
 
     @Override
@@ -107,67 +108,30 @@ public class BasicEntity implements Entity {
     }
 
     @Override
-    public int getHp() {
-        return this.hp;
+    public int getStat(StatType statType, StatTime time) {
+     return (time.equals(StatTime.CURRENT) ? currStats : globalStats).get(statType);
     }
 
     @Override
-    public void setHp(final int hp) {
-        this.hp = hp;
-    }
-
-    @Override
-    public void increaseHp(final int hp) {
-        this.hp += hp;
-    }
-
-    @Override
-    public void decreaseHp(final int hp) {
-        if (this.hp > hp) {
-            this.hp -= hp;
+    public int setStat(StatType statType, int value, StatTime time, ActionType action) {
+        Optional<Integer> newValue = Optional.empty();
+        if (action.equals(ActionType.SET)) {
+            newValue = Optional.of(value);
         } else {
-            this.hp = 0;
+            int oldValue = this.getStat(statType, time);
+            if (action.equals(ActionType.INCREASE)) {
+                newValue = Optional.of(oldValue + value);
+            } else if (action.equals(ActionType.DECREASE)) {
+                newValue = Optional.of(oldValue - value);
+            }
         }
-    }
-
-    @Override
-    public int getLevel() {
-        return level;
-    }
-
-    @Override
-    public void setLevel(final int level) {
-        this.level = level;
-    }
-
-    @Override
-    public int getSpeed() {
-        return speed;
-    }
-
-    @Override
-    public void setSpeed(final int speed) {
-        this.speed = speed;
-    }
-
-    @Override
-    public int getMana() {
-        return this.mana;
+        return (time.equals(StatTime.CURRENT) ? currStats : globalStats).replace(statType, newValue.get()).intValue();
     }
     
     @Override
-    public void setMana(final int mana) {
-        this.mana = mana;
-    }
-    
-    @Override
-    public int getManaRegen() {
-        return this.manaRegen;
-    }
-    
-    @Override
-    public void setManaRegen(final int manaRegen) {
-        this.manaRegen = manaRegen;
+    public void copyStats() {
+        this.currStats.clear();
+        this.currStats.putAll(this.globalStats);
     }
 
     @Override
@@ -177,7 +141,9 @@ public class BasicEntity implements Entity {
 
     @Override
     public List<Skill> getAllowedSkillList() {
-        return this.skillList.stream().filter(s -> s.getRequiredLevel() <= this.level).collect(Collectors.toList());
+        return this.skillList.stream()
+                .filter(s -> s.getRequiredLevel() <= this.getStat(StatType.LEVEL, StatTime.GLOBAL))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -185,53 +151,15 @@ public class BasicEntity implements Entity {
         return this.skillList.get(index);
     }
 
-    @Override
-    public String toString() {
+    public String toString(StatTime time) {
         final StringBuilder sb = new StringBuilder();
-        return sb.append("Name: ").append(this.name).append("\nStats: \tHP: ").append(this.hp).append("\n\tSpeed: ")
-                .append(this.speed).append("\n\tLevel: ").append(this.level).append("\n\tSkills: ")
-                .append(this.getAllowedSkillList().toString()).toString();
-    }
-
-    /**
-     * Equals override, used mainly on testing purpose.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        BasicEntity other = (BasicEntity) obj;
-        if (hp != other.hp) {
-            return false;
-        }
-        if (level != other.level) {
-            return false;
-        }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        if (skillList == null) {
-            if (other.skillList != null) {
-                return false;
-            }
-        } else if (!skillList.equals(other.skillList)) {
-            return false;
-        }
-        if (speed != other.speed) {
-            return false;
-        }
-        return true;
+        return sb.append("Name: ").append(this.name)
+                .append("\nStats: \tHP: ").append(this.getStat(StatType.HP, time))
+                .append("\n\tSpeed: ").append(this.getStat(StatType.SPEED, time))
+                .append("\n\tLevel: ").append(this.getStat(StatType.LEVEL, time))
+                .append("\n\tMana: ").append(this.getStat(StatType.MANA, time))
+                .append("\n\tMana Regen: ").append(this.getStat(StatType.MANAREGEN, time))
+                .append("\n\tSkills: ").append(this.getAllowedSkillList().toString()).toString();
     }
 
     /**
@@ -310,7 +238,7 @@ public class BasicEntity implements Entity {
             this.mana = Optional.ofNullable(mana);
             return (T) this;
         }
-        
+
         /**
          * Adds a mana regen value to the builder instance.
          * 
@@ -356,4 +284,11 @@ public class BasicEntity implements Entity {
         this(builder.name, builder.hp, builder.level, builder.speed, builder.mana, builder.manaRegen, builder.types);
     }
 
+    public enum StatTime {
+        GLOBAL, CURRENT;
+    }
+
+    public enum ActionType {
+        SET, DECREASE, INCREASE;
+    }
 }

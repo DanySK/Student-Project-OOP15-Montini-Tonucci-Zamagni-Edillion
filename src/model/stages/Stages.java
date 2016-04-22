@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import model.entities.BasicEntity.StatTime;
 import model.entities.Entity;
+import model.entities.StatType;
 
 public class Stages {
      
@@ -15,7 +17,7 @@ public class Stages {
 
     public static boolean isCleared(List<Entity> enemyList) { // if there are enemies with more than
         // 0 hp, return !true (= false)
-        return !enemyList.stream().anyMatch(m -> m.getHp() > 0);
+        return !enemyList.stream().anyMatch(m -> m.getStat(StatType.HP, StatTime.CURRENT) > 0);
     }
     
     public static void setStagesData(Map<StageData, StageState> stageMap) {

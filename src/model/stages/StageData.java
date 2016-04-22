@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import model.entities.Entity;
 import model.entities.MonsterFactory;
 import model.entities.MonsterTemplates;
+import model.entities.StatType;
+import model.entities.BasicEntity.StatTime;
 
 public enum StageData implements Stage {
     TUTORIAL("Tutorial", MonsterTemplates.PEASANT),
@@ -67,6 +69,6 @@ public enum StageData implements Stage {
      * @return the reward value.
      */
     private int calculateReward() {
-        return this.getEnemyList().stream().mapToInt(e -> Math.round((e.getHp() * EXP_HP_MOD * e.getLevel()))).sum();
+        return this.getEnemyList().stream().mapToInt(e -> Math.round((e.getStat(StatType.HP, StatTime.CURRENT) * EXP_HP_MOD * e.getStat(StatType.LEVEL, StatTime.CURRENT)))).sum();
     }
 }
