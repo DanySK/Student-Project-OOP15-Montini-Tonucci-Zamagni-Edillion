@@ -1,6 +1,7 @@
 package model.entities;
 
 import java.util.List;
+import java.util.Map;
 
 import model.entities.BasicEntity.ActionType;
 import model.entities.BasicEntity.StatTime;
@@ -18,6 +19,8 @@ public interface Entity {
     void copyStats();
 
     String getName();
+    
+    Map<StatType, Integer> getStatMap(StatTime time);
     
     /**
      * 

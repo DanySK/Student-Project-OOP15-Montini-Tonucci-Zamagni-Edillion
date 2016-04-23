@@ -2,9 +2,11 @@ package model.entities;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import model.entities.BasicEntity.StatTime;
 import model.skills.Skill;
 import model.skills.SkillType;
 
@@ -13,45 +15,10 @@ import model.skills.SkillType;
  */
 public class BasicEntity implements Entity {
 
-    /**
-     * Minimum level allowed.
-     */
-    public final static int MIN_LEVEL = 1;
-
-    /**
-     * Maximum level allowed.
-     */
-    public final static int MAX_LEVEL = 20;
-
-    /**
-     * Minimum speed allowed.
-     */
-    public final static int MIN_SPEED = 1;
-
-    /**
-     * Standard speed value (assigned if speed is not explicit on builder).
-     */
-    public final static int STANDARD_SPEED = 5;
-
-    /**
-     * Standard hitpoint value (assigned if hp is not explicit on builder).
-     */
-    public final static int STANDARD_HP = 100;
-
-    /**
-     * Standard mana value (assigned if mana is not explicit on builder).
-     */
-    public static final int STANDARD_MANA = 50;
-
-    /**
-     * Standard mana regen value (assigned if mana is not explicit on builder).
-     */
-    public static final int STANDARD_MANAREGEN = 5;
-
     private final String name;
-    protected EnumMap<StatType, Integer> globalStats = new EnumMap<>(StatType.class);
-    private EnumMap<StatType, Integer> currStats = new EnumMap<>(StatType.class);
-    private List<Skill> skillList;
+    protected final EnumMap<StatType, Integer> globalStats = new EnumMap<>(StatType.class);
+    private final Map<StatType, Integer> currStats = new EnumMap<>(StatType.class);
+    private final List<Skill> skillList;
 
     /**
      * @param name
@@ -64,40 +31,14 @@ public class BasicEntity implements Entity {
     private BasicEntity(final String name, Optional<Integer> hp, Optional<Integer> level, Optional<Integer> speed,
             Optional<Integer> mana, Optional<Integer> manaRegen, final SkillType[] types)
                     throws IllegalArgumentException {
-        //TODO Controllo associato all'enum, con uno stream/ciclo unico
-        if (name == null) {
-            throw new IllegalArgumentException("Insert a name not null");
-        }
-        if (!hp.isPresent()) {
-            hp = Optional.of(BasicEntity.STANDARD_HP);
-        }
-        if (!level.isPresent()) {
-            level = Optional.of(BasicEntity.MIN_LEVEL);
-        }
-        if (!speed.isPresent()) {
-            speed = Optional.of(BasicEntity.MIN_SPEED);
-        }
-        if (level.isPresent()
-                && (level.get().intValue() > BasicEntity.MAX_LEVEL || level.get().intValue() < BasicEntity.MIN_LEVEL)) {
-            throw new IllegalArgumentException("Level outside the allowed range: " + level + " ("
-                    + BasicEntity.MIN_LEVEL + " - " + BasicEntity.MAX_LEVEL + ")");
-        }
-        if (speed.isPresent() && (speed.get().intValue() < BasicEntity.MIN_SPEED)) {
-            throw new IllegalArgumentException("Speed parameter must be higher than 0 (your speed: " + speed + ")");
-        }
-        if (!mana.isPresent()) {
-            mana = Optional.of(BasicEntity.STANDARD_MANA);
-        }
-        if (!manaRegen.isPresent()) {
-            manaRegen = Optional.of(BasicEntity.STANDARD_MANAREGEN);
-        }
 
         this.name = name;
-        globalStats.put(StatType.HP, hp.get());
-        globalStats.put(StatType.LEVEL, level.get());
-        globalStats.put(StatType.SPEED, speed.get());
-        globalStats.put(StatType.MANA, mana.get());
-        globalStats.put(StatType.MANAREGEN, manaRegen.get());
+        globalStats.put(StatType.HP, StatType.HP.check(hp));
+        globalStats.put(StatType.LEVEL, StatType.LEVEL.check(level));
+        globalStats.put(StatType.SPEED, StatType.SPEED.check(speed));
+        globalStats.put(StatType.MANA, StatType.MANA.check(mana));
+        globalStats.put(StatType.MANAREGEN, StatType.MANAREGEN.check(manaRegen));
+        
         this.skillList = SkillType.getSkillList(types);
         this.copyStats();
     }
@@ -132,6 +73,10 @@ public class BasicEntity implements Entity {
     public void copyStats() {
         this.currStats.clear();
         this.currStats.putAll(this.globalStats);
+    }
+    
+    public Map<StatType, Integer> getStatMap(StatTime time) {
+        return (time.equals(StatTime.CURRENT) ? currStats : globalStats);
     }
 
     @Override

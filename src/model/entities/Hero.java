@@ -47,7 +47,7 @@ public class Hero extends BasicEntity {
      */
     public int gainExp(final int reward) {
         this.exp = this.exp + reward;
-        if (this.getStat(StatType.LEVEL, StatTime.GLOBAL) < BasicEntity.MAX_LEVEL) {
+        if (this.getStat(StatType.LEVEL, StatTime.GLOBAL) < StatType.LEVEL.getMaxValue()) {
             while (this.exp > this.expToLevelUp()) {
                 this.levelUp();
             }

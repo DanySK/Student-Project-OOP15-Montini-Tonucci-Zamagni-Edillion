@@ -31,7 +31,7 @@ public class ModelTest {
         assertEquals("MyHero", hero.getName());
         assertEquals(2, hero.getStat(StatType.LEVEL, StatTime.CURRENT));
         assertEquals(10, hero.getStat(StatType.SPEED, StatTime.CURRENT));
-        assertEquals(BasicEntity.STANDARD_HP, hero.getStat(StatType.HP, StatTime.CURRENT)); //hitpoint not explained
+        assertEquals(StatType.HP.getStdValue(), hero.getStat(StatType.HP, StatTime.CURRENT)); //hitpoint not explained
         assertEquals(Role.WARRIOR, hero.getRole());
         }
     
@@ -78,7 +78,7 @@ public class ModelTest {
     public void testExceptions() {
         // level higher than MAXLEVEL
         try {
-            new Hero.Builder().role(Role.REDMAGE).name("Cecil").speed(5).level(BasicEntity.MAX_LEVEL + 1).hp(10)
+            new Hero.Builder().role(Role.REDMAGE).name("Cecil").speed(5).level(StatType.LEVEL.getMaxValue() + 1).hp(10)
                     .build();
             fail();
         } catch (IllegalArgumentException e) {
@@ -89,6 +89,7 @@ public class ModelTest {
             new Hero.Builder().role(Role.BLACKMAGE).name("Kael'thas").speed(-5).hp(10).build();
             fail();
         } catch (IllegalArgumentException e) {
+            //System.out.println(e.getMessage());
         }
 
         // null builder
