@@ -7,49 +7,60 @@ import java.util.Scanner;
 
 import model.entities.Entity;
 import model.entities.Hero;
+import model.entities.StatType;
+import model.entities.BasicEntity.ActionType;
+import model.entities.BasicEntity.StatTime;
 import model.skills.Skill;
 import model.stages.Stage;
 import model.stages.StageData;
+import model.stages.StageState;
+import model.stages.Stages;
 
 public class StageLoopImp implements StageLoop {
     
     public static final double DIV_SPEED = 30.00;
     private Stage stage;
-    private Hero hero;
-    private int counter, hpHero, numOpp, numMossa, speedHero;
+    private int counter, numOpp, numMossa, speedHero;
     private volatile boolean pausa = true;
+    private Entity heroM;
+    private List<Entity> listMonster;
     
     @Override
-    public boolean play(int stagePlay, Hero heroP) {
-        hero = heroP;
-        hpHero = hero.getHp();
-        loadStage(stagePlay);
+    public boolean play(int stagePlay, Hero hero) {
         
-        speedHero = (int) ((DIV_SPEED/hero.getSpeed())*1000);
+        loadStage(stagePlay);
+        if ( stage.getState() == StageState.LOCKED )
+            return false;
+        
+        hero.copyStats();
+        heroM = hero;
+        speedHero = (int) ((DIV_SPEED/hero.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
+        listMonster = stage.getEnemyList();
         
         final List<Opponent> listOpp = new ArrayList<>();
      
         final Agent agent = new Agent();
         agent.start();
         
-        for (Entity monster : stage.getEnemyList()) {
+        for (Entity monster : listMonster) {
             final Opponent mon = new Opponent(monster);
             listOpp.add(mon);
             
             mon.start();
         }
         
-        while (!(StageData.isCleared(stage.getEnemyList())) && hero.getHp() > 0 ) {
+        while (!(Stages.isCleared(listMonster)) && hero.getStat(StatType.HP, StatTime.CURRENT) > 0 ) {
             
             if ( counter != 0 ) {
                 agent.pausaCounting();
             }
             
             //SELEZIONA AVVERSARIO
+            numOpp = 0;
             if ( listOpp.size() != 1 ) {
                 for ( numOpp = 0 ; numOpp < listOpp.size() ; numOpp++ ) {
-                    if ( stage.getEnemyList().get(numOpp).getHp() > 0 ) {
-                        System.out.println( (numOpp+1) + ") " + stage.getEnemyList().get(numOpp).getName() );
+                    if ( listMonster.get(numOpp).getStat(StatType.HP, StatTime.CURRENT) > 0 ) {
+                        System.out.println( (numOpp+1) + ") " + listMonster.get(numOpp).getName() );
                     }
                     
                 }
@@ -76,13 +87,15 @@ public class StageLoopImp implements StageLoop {
             try {
                 Thread.sleep(speedHero);
                 
-                if (hero.getHp() > 0) {
-                    attack(hero, stage.getEnemyList().get(numOpp), numMossa);
+                if (hero.getStat(StatType.HP, StatTime.CURRENT) > 0) {
+                    
+                    attack(hero, listMonster.get(numOpp), numMossa);
+                    
                     System.out.println("Mostro attaccato: " + 
-                                        stage.getEnemyList().get(numOpp).getName() +
+                                        listMonster.get(numOpp).getName() +
                                         " Attacco con: " + hero.getSkill(numMossa).getName() +
                                         " Vita: " + 
-                                        stage.getEnemyList().get(numOpp).getHp() );
+                                        listMonster.get(numOpp).getStat(StatType.HP, StatTime.CURRENT) );
                 }
                 
             } catch (InterruptedException e) {
@@ -92,14 +105,22 @@ public class StageLoopImp implements StageLoop {
         
         agent.stopCounting();
         
-        if ( hero.getHp() <= 0) {
-            hero.setHp(hpHero);
+        if ( hero.getStat(StatType.HP, StatTime.CURRENT) <= 0) {
             return false;
         }
-        hero.setHp(hpHero);
+        stage.setState(StageState.DONE);
+        speedHero = stagePlay +1;
+        loadStage(speedHero);
+        if ( stage.getState().equals(StageState.LOCKED) ) {
+            stage.setState(StageState.UNLOCKED);
+            System.out.println( stage.getName() + " was unlocked");
+        }
+        
+        
         System.out.println("Hero ha " + hero.getExp() + "       e ne guadagnerà: " + stage.getReward() + "      per il liv suc ne servono: " +hero.expToLevelUp());
         hero.gainExp(stage.getReward());
         System.out.println("Hero ha " + hero.getExp() + "       e ne ha guadagnati: " + stage.getReward() + "      per il liv suc ne servono: " +hero.expToLevelUp());
+        
         return true;
     }
     
@@ -107,8 +128,8 @@ public class StageLoopImp implements StageLoop {
 
     @Override
     public void attack(Entity attacker, Entity target, int skillId) {
-        target.decreaseHp(attacker.getSkill(skillId).useSkill());
-    }
+        target.setStat(StatType.HP, attacker.getSkill(skillId).useSkill(), StatTime.CURRENT, ActionType.DECREASE);
+}
 
     @Override
     public void loadStage(int index) {
@@ -142,9 +163,9 @@ public class StageLoopImp implements StageLoop {
         }
 
         public synchronized void run() {
-            speed = (int) ((DIV_SPEED/monster.getSpeed())*100);
+            speed = (int) ((DIV_SPEED/monster.getStat(StatType.SPEED, StatTime.CURRENT))*100);
             
-            while ( monster.getHp() > 0 && !playerLost ) {
+            while ( monster.getStat(StatType.HP, StatTime.CURRENT) > 0 && !playerLost ) {
                 try {
                     Thread.sleep(10);
                     
@@ -163,10 +184,10 @@ public class StageLoopImp implements StageLoop {
                             count++;
                         }
                         
-                        attack(monster, hero, i_skill);
+                        attack(monster, heroM, i_skill);
                         System.out.println(monster.getName() + " ha attaccato " + "hero");
-                        System.out.println("Vita rimanente eroe " + hero.getHp() );
-                        if (hero.getHp() <= 0) {
+                        System.out.println("Vita rimanente eroe " + heroM.getStat(StatType.HP, StatTime.CURRENT) );
+                        if (heroM.getStat(StatType.HP, StatTime.CURRENT) <= 0) {
                             playerLost = true;
                         }
                     }

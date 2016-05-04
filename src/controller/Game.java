@@ -5,6 +5,8 @@ import java.util.Scanner;
 
 import model.entities.Hero;
 import model.entities.Role;
+import model.stages.StageData;
+import model.stages.StageState;
 
 public class Game implements GameEngine{
     
@@ -33,6 +35,8 @@ public class Game implements GameEngine{
          */
         
         Hero hero = new Hero.Builder().name("Pippo").hp(20).level(1).speed(5).role(Role.WARRIOR).build();
+
+        StageData.TUTORIAL.setState(StageState.UNLOCKED);
         
         
         while ( index != NUM_STAGE+1 && fine != 2 ) {
