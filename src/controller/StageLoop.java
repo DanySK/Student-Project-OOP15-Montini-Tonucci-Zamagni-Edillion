@@ -18,5 +18,4 @@ public interface StageLoop{
      */
     void attack(Skill mossa, int monsterId);
 
-
 }

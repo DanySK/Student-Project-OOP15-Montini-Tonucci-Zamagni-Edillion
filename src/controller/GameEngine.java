@@ -1,5 +1,6 @@
 package controller;
 
+
 import model.entities.Role;
 import model.stages.StageData;
 
@@ -15,4 +16,5 @@ public interface GameEngine {
     void buildHero(String name, Role role);
     
     void stageLoad(StageData data);
+    
 }

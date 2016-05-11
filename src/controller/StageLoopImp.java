@@ -1,6 +1,9 @@
 package controller;
 
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,16 +15,20 @@ import model.entities.BasicEntity.StatTime;
 import model.skills.Skill;
 import model.stages.Stage;
 import model.stages.StageData;
+import model.stages.StageState;
 import model.stages.Stages;
 import view.CombatGUI;
+import view.View;
 
 public class StageLoopImp implements StageLoop {
     
     public static final double DIV_SPEED = 30.00;
+    public static final int ATTESA_EXP = 1000;
     private Stage stage;
     private int counter, speedHero;
     private volatile boolean pausa = true;
-    private Entity heroCurrent;
+    private Hero heroCurrent;
+    private CombatGUI riferimentoView;
     private List<Entity> listMonster;
     final Agent agent = new Agent();
     
@@ -32,7 +39,6 @@ public class StageLoopImp implements StageLoop {
         
         hero.copyStats();
         heroCurrent = hero;
-        speedHero = (int) ((DIV_SPEED/hero.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
         listMonster = stage.getEnemyList();
         
         final List<Opponent> listOpp = new ArrayList<>();
@@ -44,75 +50,86 @@ public class StageLoopImp implements StageLoop {
             mon.start();
         }
 
-        CombatGUI riferimentoView = new CombatGUI(/**/"kjuvc"); //this, stage, hero.getName(), hero.getStatMap(StatTime.CURRENT), hero.getAllowedSkillList());
+        riferimentoView = new CombatGUI(/**/"kjuvc"); //this, stage, hero.getName(), hero.getStatMap(StatTime.CURRENT), hero.getAllowedSkillList());
     }
     
     
     @Override
     public void attack(Skill mossa, int monsterId) {
         
-        //disabilita pulsanti
+        //riferimentoView.enableButtons(false);
         
-        if ( !(Stages.isCleared(listMonster)) && heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 ) {
+        if ( heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 ) {
             
             agent.pausaCounting();
-            
+
+            speedHero = (int) ((DIV_SPEED/heroCurrent.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
             try {
                 Thread.sleep(speedHero);
                 
                 if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0) {
                     
                     attackEffective(heroCurrent, listMonster.get(monsterId), mossa);
+                    //riferimentoView.refreshMonsters(listMonster);
                     
+                    agent.pausaCounting();
                     
-                    //ti dovrò chiamare la refreshMionster
+                    if ( Stages.isCleared(listMonster) ) {
+                        
+                        agent.stopCounting();
+
+                        setStage();
+                        
+                        heroCurrent.setStat(StatType.EXP, stage.getReward(), StatTime.GLOBAL, ActionType.INCREASE);
+                        heroCurrent.copyStats();
+                        //riferimentoView.refreshHero( StatType.EXP, heroCurrent.getStat(StatType.EXP, StatTime.GLOBAL));
+                        save( "save/" + heroCurrent.getName() + ".txt" );
+                        
+                        Thread.sleep(ATTESA_EXP);
+                        //View win = new Victory("Vittoria");
+                    }
                     
-                    
-                    /*
-                    System.out.println("Mostro attaccato: " + 
-                                        listMonster.get(numOpp).getName() +
-                                        " Attacco con: " + heroCurrent.getSkill(numMossa).getName() +
-                                        " Vita: " + 
-                                        listMonster.get(numOpp).getStat(StatType.HP, StatTime.CURRENT) );
-                                        */
                 }
                 
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            agent.pausaCounting();
         }
         
-        /*
-        agent.stopCounting();
-        
-        if ( hero.getStat(StatType.HP, StatTime.CURRENT) <= 0) {
-            return false;
-        }
+        //riferimentoView.enableButtons(true);
+    }
+
+
+    private void setStage() {
         stage.setState(StageState.DONE);
+        
+        switch (stage.getName()) {
+        
+            case "Tutorial":
+                stage = StageData.FIRSTMISSION;
+                break;
+                
+            case "First mission":
+                stage = StageData.THECAVE;
+                break;
+                
+            case "The Cave":
+                stage = StageData.UNFAIR;
+                break;
+            
+            default:
+                break;
+        }
         if ( stage.getState().equals(StageState.LOCKED) ) {
             stage.setState(StageState.UNLOCKED);
-            System.out.println( stage.getName() + " was unlocked");
         }
-        
-        
-        System.out.println("Hero ha " + hero.getExp() + "       e ne guadagnerà: " + stage.getReward() + "      per il liv suc ne servono: " +hero.expToLevelUp());
-        hero.gainExp(stage.getReward());
-        System.out.println("Hero ha " + hero.getExp() + "       e ne ha guadagnati: " + stage.getReward() + "      per il liv suc ne servono: " +hero.expToLevelUp());
-        
-        return true;
-        */
-        
-        
-      //abilita pulsanti
     }
 
 
     public void attackEffective(Entity attacker, Entity target, Skill skill) {
         target.setStat(StatType.HP, skill.useSkill(), StatTime.CURRENT, ActionType.DECREASE);
-}
+    }
 
-    
     
     private class Opponent extends Thread {
         
@@ -140,10 +157,13 @@ public class StageLoopImp implements StageLoop {
                                                     .max((p1, p2) -> Integer.compare( p1.getDamage(), p2.getDamage())).get();
                         
                         attackEffective(monster, heroCurrent, skill);
-                        System.out.println(monster.getName() + " ha attaccato " + "hero");
-                        System.out.println("Vita rimanente eroe " + heroCurrent.getStat(StatType.HP, StatTime.CURRENT) );
+
+                        //riferimentoView.refreshHero( StatType.HP, heroCurrent.getStat(StatType.HP, StatTime.CURRENT));
+                        
                         if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) <= 0) {
                             playerLost = true;
+                            agent.stopCounting();
+                            //View gameOver = new Defeat("Game Over");
                         }
                     }
                 } catch ( InterruptedException ex) {
@@ -163,7 +183,6 @@ public class StageLoopImp implements StageLoop {
             return false;
         }
     }
-    
     
     
     private class Agent extends Thread {
@@ -199,4 +218,31 @@ public class StageLoopImp implements StageLoop {
                 }
         }
     }
+    
+    
+    private void save(String nameSave) {
+        
+        List list = new ArrayList();
+        list.add(heroCurrent);
+        list.add(Stages.generateStagesData());
+        
+
+        FileOutputStream fileOutputStream = null;
+        ObjectOutputStream objectOutputStream = null;
+        
+        try {
+            fileOutputStream = new FileOutputStream(nameSave);
+            objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            
+            objectOutputStream.writeObject(list);
+            objectOutputStream.close();
+            fileOutputStream.close();
+            
+            System.out.println("Oggetto correttamente salvato su file.");
+            
+        } catch (IOException ex) {
+                ex.printStackTrace();
+        }
+        
+    } 
 }
