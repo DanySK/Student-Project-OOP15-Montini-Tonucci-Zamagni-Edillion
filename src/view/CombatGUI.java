@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -27,21 +28,27 @@ public class CombatGUI extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //la barra in alto è 40 pixel senza pack 25 con pack
-        //To do: cambiare i numeri delle size e metterli costanti e che variano in base alla screensize
+        //forse esiste un modo migliroe anzichè usare sempre i cast
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        double width = screenSize.getWidth();
+        double height = screenSize.getHeight();
+        //double width = 800;
+        //double height = 600;
+        this.setSize((int)(width), (int)(height));
         
         //Creazione pannello superiore e inferiore
         JPanel np = new JPanel(new BorderLayout());
         JPanel sp = new JPanel(new BorderLayout());
-        np.setPreferredSize(new Dimension(800,300));
-        sp.setPreferredSize(new Dimension(800,300));
+        np.setPreferredSize(new Dimension((int)width,(int)height/2));
+        sp.setPreferredSize(new Dimension((int)width,(int)height/2));
         np.setBorder(BorderFactory.createLineBorder(Color.BLACK,4));
         sp.setBorder(BorderFactory.createLineBorder(Color.GREEN,4));
         
         //Creazione pannelli inferiore destro e inferiore sinistro
         JPanel swp = new JPanel(new BorderLayout());
         JPanel sep = new JPanel(new GridBagLayout());
-        swp.setPreferredSize(new Dimension(400,300));
-        sep.setPreferredSize(new Dimension(400,300));
+        swp.setPreferredSize(new Dimension((int)width/2,(int)height/2));
+        sep.setPreferredSize(new Dimension((int)width/2,(int)height/2));
         swp.setBorder(BorderFactory.createLineBorder(Color.RED,3));
         sep.setBorder(BorderFactory.createLineBorder(Color.BLUE,3));
         
@@ -57,8 +64,7 @@ public class CombatGUI extends JFrame {
 
         JProgressBar hpBarHero  = new JProgressBar(SwingConstants.HORIZONTAL,0,500);
         gbc.gridx = 1;
-        //Il set value deve darmelo il controller (?)
-        hpBarHero.setValue(450);
+        hpBarHero.setValue(300);
         hpBarHero.setStringPainted(true);
         
         JTextField hpField = new JTextField(String.valueOf(hpBarHero.getValue()));
@@ -70,8 +76,8 @@ public class CombatGUI extends JFrame {
         //Creazione pannelli inferiore detro sopra e inferiore destro sotto
         JPanel swnp = new JPanel(new FlowLayout());
         JPanel swsp = new JPanel(new BorderLayout());
-        swnp.setPreferredSize(new Dimension(400,150));
-        swsp.setPreferredSize(new Dimension(400,150));
+        swnp.setPreferredSize(new Dimension((int)width/2,(int)height/4));
+        swsp.setPreferredSize(new Dimension((int)width/2,(int)height/2));
         swnp.setBorder(BorderFactory.createLineBorder(Color.BLACK,4));
         swsp.setBorder(BorderFactory.createLineBorder(Color.BLUE,4));
 
@@ -94,17 +100,11 @@ public class CombatGUI extends JFrame {
         
         this.add(np,BorderLayout.NORTH);
         this.add(sp,BorderLayout.SOUTH);
-
-        this.pack();
+        
+        
+        //visto che c'è setsize il pack non dovrebbe servire
+        //this.pack();
+        this.setResizable(false);
         this.setVisible(true);
     }
-    
-    /*public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-               new CombatGUI("prova");
-            }
-            
-        });
-    }*/
 }
