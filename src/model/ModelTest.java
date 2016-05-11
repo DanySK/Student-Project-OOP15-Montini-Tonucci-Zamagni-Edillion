@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Map;
 import model.entities.BasicEntity;
+import model.entities.BasicEntity.ActionType;
 import model.entities.BasicEntity.StatTime;
 import model.entities.Hero;
 import model.entities.MonsterFactory;
@@ -33,6 +34,8 @@ public class ModelTest {
         assertEquals(10, hero.getStat(StatType.SPEED, StatTime.CURRENT));
         assertEquals(StatType.HP.getStdValue(), hero.getStat(StatType.HP, StatTime.CURRENT)); //hitpoint not explained
         assertEquals(Role.WARRIOR, hero.getRole());
+        hero.setStat(StatType.HP, 500, StatTime.CURRENT, ActionType.DECREASE);
+        assertEquals(0, hero.getStat(StatType.HP, StatTime.CURRENT));
         }
     
     /**
@@ -43,11 +46,11 @@ public class ModelTest {
        StageData.TUTORIAL.setState(StageState.DONE);
        StageData.THECAVE.setState(StageState.UNLOCKED);
        Map<StageData, StageState> stageMap = Stages.generateStagesData();
-       System.out.println(stageMap.values());
+      // System.out.println(stageMap.values());
        StageData.FIRSTMISSION.setState(StageState.DONE);
-       System.out.println(Stages.generateStagesData().values());
+     //  System.out.println(Stages.generateStagesData().values());
        Stages.setStagesData(stageMap);
-       System.out.println(stageMap.values());
+    //   System.out.println(stageMap.values());
     }
 
     /**

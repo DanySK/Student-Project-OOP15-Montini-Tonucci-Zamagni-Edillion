@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import model.entities.BasicEntity.StatTime;
 import model.skills.Skill;
 import model.skills.SkillType;
 
@@ -32,6 +31,9 @@ public class BasicEntity implements Entity {
             Optional<Integer> mana, Optional<Integer> manaRegen, final SkillType[] types)
                     throws IllegalArgumentException {
 
+        if (name == null) {
+            throw new IllegalArgumentException("Insert a name not null");
+        }
         this.name = name;
         globalStats.put(StatType.HP, StatType.HP.check(hp));
         globalStats.put(StatType.LEVEL, StatType.LEVEL.check(level));
@@ -66,6 +68,18 @@ public class BasicEntity implements Entity {
                 newValue = Optional.of(oldValue - value);
             }
         }
+        
+        try { // Negative HP set to 0
+            statType.check(newValue);
+        } catch (IllegalArgumentException e) {
+            if (statType.equals(StatType.HP) && newValue.get() < 0) {
+                newValue = Optional.of(0);
+                action = ActionType.SET;
+            } else {
+                throw e;
+            }
+        }
+    
         return (time.equals(StatTime.CURRENT) ? currStats : globalStats).replace(statType, newValue.get()).intValue();
     }
     

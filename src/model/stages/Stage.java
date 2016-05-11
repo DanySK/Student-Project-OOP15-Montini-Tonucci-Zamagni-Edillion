@@ -23,5 +23,7 @@ public interface Stage {
     StageState getState();
     
     void setState(StageState state);
+    
+    Stage getNext();
 
 }

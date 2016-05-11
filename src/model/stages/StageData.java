@@ -50,10 +50,18 @@ public enum StageData implements Stage {
     public StageState getState() {
         return this.state;
     }
-
+    
     @Override
     public void setState(StageState state) {
         this.state = state;
+    }
+    
+    @Override
+    public Stage getNext() throws  IllegalStateException {
+        if (this.ordinal() == StageData.values().length-1) {
+            throw new IllegalStateException("Last stage reached!");
+        }
+        return StageData.values()[this.ordinal()+1];
     }
     
     @Override
