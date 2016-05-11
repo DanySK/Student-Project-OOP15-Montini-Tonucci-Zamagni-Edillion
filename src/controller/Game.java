@@ -14,6 +14,10 @@ import model.entities.Hero;
 import model.entities.Role;
 import model.stages.StageData;
 import model.stages.StageState;
+import model.stages.Stages;
+import view.CreateHeroGUI;
+import view.SelezionaStageGUI;
+import view.StartGUI;
 import view.View;
 
 public class Game implements GameEngine{
@@ -24,6 +28,7 @@ public class Game implements GameEngine{
     private Hero NULL;
     private Hero hero = NULL;
     public boolean win;
+    private int primaPartita = 0;
     
     
     /**
@@ -46,39 +51,40 @@ public class Game implements GameEngine{
         
         StageData.TUTORIAL.setState(StageState.UNLOCKED);
         
-        loadSave("");
 
-        //View menu = new StartGUI("Menù principale");
+        View menu = new StartGUI("Menù principale");
     }
 
     @Override
     public void gioca() {
         
         //DOVRA' ESSERE SEPARATA IN DUE CLASSI DI MODO DA POTER SELEZIONARE IL SALVATAGGIO
+        //PER ORA DATO CHE NON C'E' ANCORA MODO DI GIOCARE NON CARICHERO' MAI IL SALVATAGGIO
+        
+        //IL PULSANTE "GIOCA" DOVRA' DIFFERENZIARE LA POSSIBILITA' O MENO DI CONTINUARE UNA PARTITA GIA' AVVIATA
+        //DEVO CREARE SICURAMENTE UN ALTRO METODO, DOBBIAMO PARLARE PER I CAMBIAMENTI
         
         File dir = new File(folderPath);
         String[] presence = dir.list();
         
-        if (presence == null) { //SE LA CARTELLA SAVE E' VUOTA
-            System.out.println("cartella vuota");
-        } else {
-            
+        if (primaPartita != 0) {
+            System.out.println("cartella piena");
             for (int i=0; i < presence.length; i++) {
                 // Get filename of file or directory
                 String filename = presence[i];
                 System.out.println(filename);
             }
-
+            
             loadSave( folderPath + "/" + presence[0] + ".txt");
         }
             
-        if (hero == NULL) { //CONTROLLA L'ESISTENAZA DI UN SALVATAGGIO PER CREARE O NO L'EROE (non c'è, crealo)
+        if (hero == NULL) { //PER ORA LO CREO POI VADO ALLO STAGE, SARA' DA CAMBIARE
             
-            //View createPG = new CreateHeroGUI("Creazione del personaggio");
+            View createPG = new CreateHeroGUI("Creazione del personaggio");
             
         } else {
         
-           //View selectStage = new SelezionaStageGUI("Selezione dello stage da affrontare"); 
+            View selectStage = new SelezionaStageGUI("Selezione dello stage da affrontare"); 
         }
         
     }
@@ -122,17 +128,12 @@ public class Game implements GameEngine{
         } catch (ClassNotFoundException ex) {
                 ex.printStackTrace();
         }
-        
         iterSave = saveList.iterator();
         
         hero = (Hero)iterSave.next();
-
         mapStage = (Map<StageData, StageState>)iterSave.next();
 
-        StageData.TUTORIAL.setState(mapStage.get(StageData.TUTORIAL));
-        StageData.FIRSTMISSION.setState(mapStage.get(StageData.FIRSTMISSION));
-        StageData.THECAVE.setState(mapStage.get(StageData.THECAVE));
-        StageData.UNFAIR.setState(mapStage.get(StageData.UNFAIR));
+        Stages.setStagesData(mapStage);
        }
 
 }

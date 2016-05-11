@@ -50,7 +50,8 @@ public class StageLoopImp implements StageLoop {
             mon.start();
         }
 
-        riferimentoView = new CombatGUI(/**/"kjuvc"); //this, stage, hero.getName(), hero.getStatMap(StatTime.CURRENT), hero.getAllowedSkillList());
+        riferimentoView = new CombatGUI( /**/ "free"/*this, stage, heroCurrent.getName(), 
+                hero.getStatMap(StatTime.CURRENT), heroCurrent.getAllowedSkillList() */);
     }
     
     
@@ -102,24 +103,8 @@ public class StageLoopImp implements StageLoop {
 
     private void setStage() {
         stage.setState(StageState.DONE);
+        stage = stage.getNext();
         
-        switch (stage.getName()) {
-        
-            case "Tutorial":
-                stage = StageData.FIRSTMISSION;
-                break;
-                
-            case "First mission":
-                stage = StageData.THECAVE;
-                break;
-                
-            case "The Cave":
-                stage = StageData.UNFAIR;
-                break;
-            
-            default:
-                break;
-        }
         if ( stage.getState().equals(StageState.LOCKED) ) {
             stage.setState(StageState.UNLOCKED);
         }
