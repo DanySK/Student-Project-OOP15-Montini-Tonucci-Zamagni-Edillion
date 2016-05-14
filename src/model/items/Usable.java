@@ -1,9 +1,11 @@
 package model.items;
 
-/**
- * Common Items.
- *
- */
-public interface Usable {
+import model.items.ItemUsable.ItemType;
 
+/**
+ * Interface for potion.
+ */
+public interface Usable extends Item {
+    
+    ItemType getItemType();
 }

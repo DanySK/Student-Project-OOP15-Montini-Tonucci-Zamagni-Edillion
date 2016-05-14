@@ -84,7 +84,7 @@ public class StageLoopImp implements StageLoop {
                         heroCurrent.setStat(StatType.EXP, stage.getReward(), StatTime.GLOBAL, ActionType.INCREASE);
                         heroCurrent.copyStats();
                         //riferimentoView.refreshHero( StatType.EXP, heroCurrent.getStat(StatType.EXP, StatTime.GLOBAL));
-                        save( "save/" + heroCurrent.getName() + ".txt" );
+                        save(Game.FOLDER_PATH + "/" + heroCurrent.getName() + ".dat");
                         
                         Thread.sleep(ATTESA_EXP);
                         //View win = new Victory("Vittoria");
@@ -207,7 +207,7 @@ public class StageLoopImp implements StageLoop {
     
     private void save(String nameSave) {
         
-        List list = new ArrayList();
+        List<Object> list = new ArrayList<>();
         list.add(heroCurrent);
         list.add(Stages.generateStagesData());
         

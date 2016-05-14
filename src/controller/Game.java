@@ -21,8 +21,9 @@ import view.StartGUI;
 import view.View;
 
 public class Game implements GameEngine{
-    
-    private String folderPath = "save";
+
+    public static final String FOLDER_PATH = System.getProperty("user.home") 
+        + System.getProperty("file.separator") + "rpgSave";
     public static final int NUM_STAGE = 4;
     private static Optional<Game> singleton = Optional.empty();
     private Hero NULL;
@@ -45,8 +46,8 @@ public class Game implements GameEngine{
     public Game() {
         
         //se non esiste creo la cartella per i salvataggi
-        if (!(new File(folderPath).isDirectory()) ) {
-            new File(folderPath).mkdir();
+        if (!(new File(FOLDER_PATH).isDirectory()) ) {
+            new File(FOLDER_PATH).mkdir();
         }
         
         StageData.TUTORIAL.setState(StageState.UNLOCKED);
@@ -64,7 +65,7 @@ public class Game implements GameEngine{
         //IL PULSANTE "GIOCA" DOVRA' DIFFERENZIARE LA POSSIBILITA' O MENO DI CONTINUARE UNA PARTITA GIA' AVVIATA
         //DEVO CREARE SICURAMENTE UN ALTRO METODO, DOBBIAMO PARLARE PER I CAMBIAMENTI
         
-        File dir = new File(folderPath);
+        File dir = new File(FOLDER_PATH);
         String[] presence = dir.list();
         
         if (primaPartita != 0) {
@@ -75,7 +76,7 @@ public class Game implements GameEngine{
                 System.out.println(filename);
             }
             
-            loadSave( folderPath + "/" + presence[0] + ".txt");
+            loadSave( FOLDER_PATH + "/" + presence[0] + ".dat");
         }
             
         if (hero == NULL) { //PER ORA LO CREO POI VADO ALLO STAGE, SARA' DA CAMBIARE
@@ -106,11 +107,12 @@ public class Game implements GameEngine{
         
     }
     
-    private void loadSave( String fileSelect) {
+    @SuppressWarnings("unchecked")
+    private void loadSave(String fileSelect) {
         
-        List saveList = null;
+        List<Object> saveList = null;
         FileInputStream fileInputStream = null;
-        Iterator iterSave = null;
+        Iterator<Object> iterSave = null;
         ObjectInputStream objectInputStream = null;
         Map<StageData, StageState> mapStage = null;
         
@@ -118,7 +120,7 @@ public class Game implements GameEngine{
             fileInputStream = new FileInputStream(fileSelect);
             objectInputStream = new ObjectInputStream(fileInputStream);
             
-            saveList = (ArrayList) objectInputStream.readObject();
+            saveList = (ArrayList<Object>) objectInputStream.readObject();
             
             objectInputStream.close();
             fileInputStream.close();

@@ -1,9 +1,11 @@
 package model.items;
 
+import model.items.ItemDurable.EquipType;
+
 /**
- * Equip.
- *
+ * Interface for equipment.
  */
 public interface Durable extends Item {
 
+    EquipType getEquipType();
 }
