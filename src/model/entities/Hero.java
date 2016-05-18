@@ -12,7 +12,8 @@ public class Hero extends BasicEntity {
 
     private final Role role;
     private int exp;
-  
+    private int gold;
+
     private Inventory inventory;
 
     /**
@@ -22,8 +23,8 @@ public class Hero extends BasicEntity {
     private Hero(final Builder builder) {
         super(builder);
         super.globalStats.put(StatType.EXP, 0);
+        super.globalStats.put(StatType.GOLD, 0);
         this.role = builder.role;
-        
     }
 
     /**
@@ -32,12 +33,12 @@ public class Hero extends BasicEntity {
     public Role getRole() {
         return role;
     }
-   
+
     /**
-     * @return Hero's exp
+     * @return hero's inventory
      */
-    public int getExp() {
-        return this.exp;
+    public Inventory getInventory() {
+        return this.inventory;
     }
 
     /**
@@ -86,7 +87,7 @@ public class Hero extends BasicEntity {
     public static class Builder extends BasicEntity.Builder<Builder> {
 
         private Role role;
-        
+
         /**
          * Adds a role to the builder instance.
          * @param role hero's role
@@ -109,7 +110,7 @@ public class Hero extends BasicEntity {
         }
 
     }
-    
+
     //TODO gestione dell'inventario
     private class Inventory {
         private Set<Usable> bag;

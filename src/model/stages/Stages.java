@@ -4,30 +4,46 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import model.entities.BasicEntity.StatTime;
 import model.entities.Entity;
 import model.entities.StatType;
 
-public class Stages {
-     
+/**
+ * Support class for stages.
+ *
+ */
+public final class Stages {
+
     private Stages() {
     }
 
-    public static boolean isCleared(List<Entity> enemyList) { // if there are enemies with more than
+    /**
+     * returns true if the stage is cleared/every enemy is dead.
+     * @param enemyList enemy list of a stage
+     * @return true or false
+     */
+    public static boolean isCleared(final List<Entity> enemyList) { // if there are enemies with more than
         // 0 hp, return !true (= false)
         return !enemyList.stream().anyMatch(m -> m.getStat(StatType.HP, StatTime.CURRENT) > 0);
     }
-    
-    public static void setStagesData(Map<StageData, StageState> stageMap) {
+
+    /**
+     * sets all stage's state from a map, load uti.
+     * @param stageMap a map generated from the other method
+     */
+    public static void setStagesData(final Map<StageData, StageState> stageMap) {
         stageMap.keySet().stream().forEach(k -> k.setState(stageMap.get(k)));
     }
-    
+
+    /**
+     * generates a map with every stage and its stage, save uti.
+     * @return the map stage-state
+     */
     public static Map<StageData, StageState> generateStagesData() {
         Map<StageData, StageState> stageMap = new HashMap<>();
         Arrays.asList(StageData.values()).stream().forEach(s -> stageMap.put(s, s.getState()));
         return stageMap; 
     }
-    
+
 }

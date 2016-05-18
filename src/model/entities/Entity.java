@@ -12,16 +12,42 @@ import model.skills.Skill;
  */
 public interface Entity {
 
+    /**
+     * Get a stat value, found with some enums.
+     * @param statType the stats you want the value
+     * @param time choose between current stats or global stats
+     * @return stat value
+     */
     int getStat(StatType statType, StatTime time);
-    
+
+    /**
+     * Set a single stat's value.
+     * @param statType the stats you want to set the value
+     * @param value value modifier
+     * @param time choose between current stats or global stats
+     * @param action set, decrease or increase
+     * @return the new value
+     */
     int setStat(StatType statType, int value, StatTime time, ActionType action);
-    
+
+    /**
+     * Override current stats with global stats.
+     */
     void copyStats();
 
+    /**
+     * Get entity's name.
+     * @return the name
+     */
     String getName();
-    
+
+    /**
+     * get the map with all stats.
+     * @param time current or global
+     * @return the map stat-value
+     */
     Map<StatType, Integer> getStatMap(StatTime time);
-    
+
     /**
      * 
      * @return returns the skill's list

@@ -10,7 +10,7 @@ public class MonsterFactory {
      * @param enemy a monster template
      * @return a new monster instance
      */
-    public Entity createMonster(final MonsterTemplates enemy){
+    public Entity createMonster(final MonsterTemplates enemy) {
         return new BasicEntity.Builder<>()
                               .name(enemy.getName())
                               .hp(enemy.getHp())

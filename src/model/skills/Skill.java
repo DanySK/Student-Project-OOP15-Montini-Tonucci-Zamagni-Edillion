@@ -34,7 +34,7 @@ public interface Skill {
      * @return the assign list, who can use that skill
      */
     SkillType[] getAssign();
-    
+
     /**
      * @return the damage plus the modifier damage
      */

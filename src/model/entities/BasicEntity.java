@@ -27,8 +27,8 @@ public class BasicEntity implements Entity {
      * @param skillList
      *            entity's skillset
      */
-    private BasicEntity(final String name, Optional<Integer> hp, Optional<Integer> level, Optional<Integer> speed,
-            Optional<Integer> mana, Optional<Integer> manaRegen, final SkillType[] types)
+    private BasicEntity(final String name, final Optional<Integer> hp, final Optional<Integer> level, final Optional<Integer> speed,
+            final Optional<Integer> mana, final Optional<Integer> manaRegen, final SkillType[] types)
                     throws IllegalArgumentException {
 
         if (name == null) {
@@ -40,7 +40,7 @@ public class BasicEntity implements Entity {
         globalStats.put(StatType.SPEED, StatType.SPEED.check(speed));
         globalStats.put(StatType.MANA, StatType.MANA.check(mana));
         globalStats.put(StatType.MANAREGEN, StatType.MANAREGEN.check(manaRegen));
-        
+
         this.skillList = SkillType.getSkillList(types);
         this.copyStats();
     }
@@ -51,12 +51,12 @@ public class BasicEntity implements Entity {
     }
 
     @Override
-    public int getStat(StatType statType, StatTime time) {
+    public int getStat(final StatType statType, final StatTime time) {
      return (time.equals(StatTime.CURRENT) ? currStats : globalStats).get(statType);
     }
 
     @Override
-    public int setStat(StatType statType, int value, StatTime time, ActionType action) {
+    public int setStat(final StatType statType, final int value, final StatTime time, ActionType action) {
         Optional<Integer> newValue = Optional.empty();
         if (action.equals(ActionType.SET)) {
             newValue = Optional.of(value);
@@ -68,7 +68,7 @@ public class BasicEntity implements Entity {
                 newValue = Optional.of(oldValue - value);
             }
         }
-        
+
         try { // Negative HP set to 0
             statType.check(newValue);
         } catch (IllegalArgumentException e) {
@@ -79,17 +79,17 @@ public class BasicEntity implements Entity {
                 throw e;
             }
         }
-    
         return (time.equals(StatTime.CURRENT) ? currStats : globalStats).replace(statType, newValue.get()).intValue();
     }
-    
+
     @Override
     public void copyStats() {
         this.currStats.clear();
         this.currStats.putAll(this.globalStats);
     }
-    
-    public Map<StatType, Integer> getStatMap(StatTime time) {
+
+    @Override
+    public Map<StatType, Integer> getStatMap(final StatTime time) {
         return (time.equals(StatTime.CURRENT) ? currStats : globalStats);
     }
 
@@ -110,7 +110,7 @@ public class BasicEntity implements Entity {
         return this.skillList.get(index);
     }
 
-    public String toString(StatTime time) {
+    public String toString(final StatTime time) {
         final StringBuilder sb = new StringBuilder();
         return sb.append("Name: ").append(this.name)
                 .append("\nStats: \tHP: ").append(this.getStat(StatType.HP, time))

@@ -1,6 +1,7 @@
 package model.stages;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import model.entities.Entity;
@@ -9,6 +10,9 @@ import model.entities.MonsterTemplates;
 import model.entities.StatType;
 import model.entities.BasicEntity.StatTime;
 
+/**
+ * All stages data.
+ */
 public enum StageData implements Stage {
     TUTORIAL("Tutorial", MonsterTemplates.PEASANT),
     FIRSTMISSION("First mission", MonsterTemplates.GOBLIN),
@@ -16,9 +20,10 @@ public enum StageData implements Stage {
     UNFAIR("Unfair", MonsterTemplates.PEASANT, MonsterTemplates.PEASANT);
 
 
-    private final static float EXP_HP_MOD = 1.5F;
+    private final float EXP_HP_MOD = 1.5F;
     private final String name;
     private final int reward;
+    private final int goldReward;
     private final MonsterTemplates[] enemies;
     private StageState state;
 
@@ -26,6 +31,7 @@ public enum StageData implements Stage {
         this.name = name;
         this.enemies = enemyList;
         this.reward = this.calculateReward();
+        this.goldReward = this.ordinal() * 120;
         this.state = StageState.LOCKED;
     }
 
@@ -33,10 +39,15 @@ public enum StageData implements Stage {
     public String getName() {
         return name;
     }
-    
+
     @Override
     public int getReward() {
         return reward;
+    }
+
+    @Override
+    public int getGoldReward() {
+        return goldReward;
     }
 
     @Override
@@ -45,25 +56,25 @@ public enum StageData implements Stage {
         return Arrays.asList(this.enemies).stream().map(e -> factory.createMonster(e))
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     public StageState getState() {
         return this.state;
     }
-    
+
     @Override
-    public void setState(StageState state) {
+    public void setState(final StageState state) {
         this.state = state;
     }
-    
+
     @Override
     public Stage getNext() throws  IllegalStateException {
-        if (this.ordinal() == StageData.values().length-1) {
+        if (this.ordinal() == StageData.values().length - 1) {
             throw new IllegalStateException("Last stage reached!");
         }
-        return StageData.values()[this.ordinal()+1];
+        return StageData.values()[this.ordinal() + 1];
     }
-    
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();

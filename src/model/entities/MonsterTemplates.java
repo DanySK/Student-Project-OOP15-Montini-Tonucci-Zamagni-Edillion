@@ -1,6 +1,7 @@
 package model.entities;
 
 import model.skills.SkillType;
+
 /**
  * Monster templates data.
  */
@@ -63,7 +64,7 @@ public enum MonsterTemplates {
     public int getLevel() {
         return level;
     }
-    
+
     /**
      * @return the mana
      */

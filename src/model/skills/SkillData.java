@@ -79,7 +79,7 @@ public enum SkillData implements Skill {
     public SkillType[] getAssign() {
         return assign;
     }
-    
+
     @Override
     public int useSkill() {
         if (this.modifier == 0) {
