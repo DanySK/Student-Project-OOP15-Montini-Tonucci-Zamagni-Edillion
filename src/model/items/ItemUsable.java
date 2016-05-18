@@ -1,5 +1,11 @@
 package model.items;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import model.entities.StatType;
 
 public enum ItemUsable implements Usable  {
     //               name        price    effectiv     stat           target
@@ -59,5 +65,13 @@ public enum ItemUsable implements Usable  {
     
     public enum ItemType {
         PERSONAL, COLLECTIVE, IMPERSONAL;
+    }
+    
+    public static List<Usable> getItemUsableList() {
+        List<Usable> list = new ArrayList<>();
+
+        list.addAll(Arrays.asList(ItemUsable.values()).stream().collect(Collectors.toList()));
+        
+        return list;
     }
 }

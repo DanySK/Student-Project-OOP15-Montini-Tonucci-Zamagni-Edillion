@@ -5,8 +5,12 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Map;
 import model.entities.BasicEntity;
+import model.entities.Entity;
 import model.entities.BasicEntity.ActionType;
 import model.entities.BasicEntity.StatTime;
+import model.items.Durable;
+import model.items.ItemDurable;
+import model.items.ItemUsable;
 import model.entities.Hero;
 import model.entities.MonsterFactory;
 import model.entities.MonsterTemplates;
@@ -51,6 +55,39 @@ public class ModelTest {
      //  System.out.println(Stages.generateStagesData().values());
        Stages.setStagesData(stageMap);
     //   System.out.println(stageMap.values());
+    }
+    
+    /**
+     * 
+     */
+    @org.junit.Test
+    public void testInventory() {
+        Hero hero = new Hero.Builder().name("MyHero").level(2).speed(10).role(Role.WARRIOR).build();
+
+        ItemUsable item = ItemUsable.CURE;
+
+        hero.getInventory().getBag().add(item);
+        hero.getInventory().getBag().add(item);
+        
+        System.out.println(hero.getInventory().getBag());
+        
+        switch (item.getItemType()) {
+            case PERSONAL:
+                hero.setStat(item.getStatTypeInfluence(), item.getEffectiveness(), 
+                                    StatTime.CURRENT, ActionType.INCREASE);
+                break;
+            case IMPERSONAL:
+                System.out.println("Caso IMPERSONAL");
+                break;
+            default: 
+                System.out.println("Caso default");
+                break;
+        }
+        hero.getInventory().getBag().remove(item);
+        
+        System.out.println(hero.getInventory().getBag());
+        System.out.println(hero.getStat(StatType.HP, StatTime.GLOBAL));
+        System.out.println(hero.getStat(StatType.HP, StatTime.CURRENT));
     }
 
     /**

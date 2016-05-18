@@ -1,6 +1,7 @@
 package model.items;
 
 
+import model.entities.StatType;
 /**
  * Interface for potion and equipment.
  */
@@ -14,8 +15,4 @@ public interface Item {
     
     StatType getStatTypeInfluence();
     
-
-    public enum StatType {
-        HP, MANA, SPEED;
-    }
 }

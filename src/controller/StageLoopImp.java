@@ -10,6 +10,8 @@ import java.util.List;
 import model.entities.Entity;
 import model.entities.Hero;
 import model.entities.StatType;
+import model.items.Durable;
+import model.items.ItemUsable;
 import model.entities.BasicEntity.ActionType;
 import model.entities.BasicEntity.StatTime;
 import model.skills.Skill;
@@ -25,7 +27,7 @@ public class StageLoopImp implements StageLoop {
     public static final double DIV_SPEED = 30.00;
     public static final int ATTESA_EXP = 1000;
     private Stage stage;
-    private int counter, speedHero;
+    private int counter, speedHero, maxHPhero, maxMANAhero;
     private volatile boolean pausa = true;
     private Hero heroCurrent;
     private CombatGUI riferimentoView;
@@ -39,6 +41,13 @@ public class StageLoopImp implements StageLoop {
         
         hero.copyStats();
         heroCurrent = hero;
+        
+        for ( Durable e : heroCurrent.getInventory().getEquip()) {
+            heroCurrent.setStat(e.getStatTypeInfluence(), e.getEffectiveness(), StatTime.CURRENT, ActionType.INCREASE);
+        }
+        maxHPhero = heroCurrent.getStat(StatType.HP, StatTime.CURRENT);
+        maxMANAhero = heroCurrent.getStat(StatType.MANA, StatTime.CURRENT);
+        
         listMonster = stage.getEnemyList();
         
         final List<Opponent> listOpp = new ArrayList<>();
@@ -53,11 +62,9 @@ public class StageLoopImp implements StageLoop {
         riferimentoView = new CombatGUI( /**/ "free"/*this, stage, heroCurrent.getName(), 
                 hero.getStatMap(StatTime.CURRENT), heroCurrent.getAllowedSkillList() */);
     }
-    
-    
+
     @Override
     public void attack(Skill mossa, int monsterId) {
-        
         //riferimentoView.enableButtons(false);
         
         if ( heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 ) {
@@ -76,27 +83,13 @@ public class StageLoopImp implements StageLoop {
                     agent.pausaCounting();
                     
                     if ( Stages.isCleared(listMonster) ) {
-                        
-                        agent.stopCounting();
-
-                        setStage();
-                        
-                        heroCurrent.setStat(StatType.EXP, stage.getReward(), StatTime.GLOBAL, ActionType.INCREASE);
-                        heroCurrent.copyStats();
-                        //riferimentoView.refreshHero( StatType.EXP, heroCurrent.getStat(StatType.EXP, StatTime.GLOBAL));
-                        save(Game.FOLDER_PATH + "/" + heroCurrent.getName() + ".dat");
-                        
-                        Thread.sleep(ATTESA_EXP);
-                        //View win = new Victory("Vittoria");
+                        heroWin();
                     }
-                    
                 }
-                
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        
         //riferimentoView.enableButtons(true);
     }
 
@@ -228,6 +221,81 @@ public class StageLoopImp implements StageLoop {
         } catch (IOException ex) {
                 ex.printStackTrace();
         }
+    }
+
+
+    @Override
+    public void useItem(ItemUsable item, int targetId) {
+        //riferimentoView.enableButtons(false);
         
+        if ( heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 ) {
+            switch (item.getItemType()) {
+                case PERSONAL:
+                    heroCurrent.setStat(item.getStatTypeInfluence(), item.getEffectiveness(), 
+                                        StatTime.CURRENT, ActionType.INCREASE);
+                    
+                    if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > maxHPhero) {
+                        heroCurrent.setStat(StatType.HP, maxHPhero, StatTime.CURRENT, ActionType.SET);
+                    }
+                    if (heroCurrent.getStat(StatType.MANA, StatTime.CURRENT) > maxMANAhero) {
+                        heroCurrent.setStat(StatType.MANA, maxMANAhero, StatTime.CURRENT, ActionType.SET);
+                    }
+                    //riferimentoView.refreshHero( item.getStatTypeInfluence(), 
+                                                 //heroCurrent.getStat(item.getStatTypeInfluence(), StatTime.CURRENT));
+                    break;
+                case IMPERSONAL:
+                    listMonster.get(targetId).setStat(item.getStatTypeInfluence(), item.getEffectiveness(), 
+                                                      StatTime.CURRENT, ActionType.DECREASE);
+                    //riferimentoView.refreshMonsters(listMonster);
+                    break;
+                default: 
+                    for (Entity e: listMonster) {
+                        e.setStat(item.getStatTypeInfluence(), item.getEffectiveness(), 
+                                  StatTime.CURRENT, ActionType.DECREASE);
+                    }
+                    //riferimentoView.refreshMonsters(listMonster);
+                    break;
+            }
+            heroCurrent.getInventory().getBag().remove(item);
+            
+            speedHero = (int) ((DIV_SPEED/heroCurrent.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
+            
+            if ( Stages.isCleared(listMonster) ) {
+                heroWin();
+            } else {
+                agent.pausaCounting();
+    
+                try {
+                    Thread.sleep(speedHero);
+                    
+                    if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0) {
+                        agent.pausaCounting();
+                    }
+                    
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        //riferimentoView.enableButtons(true);
     } 
+    
+    private void heroWin() {
+        agent.stopCounting();
+
+        heroCurrent.setStat(StatType.EXP, stage.getReward(), StatTime.GLOBAL, ActionType.INCREASE);
+        heroCurrent.setStat(StatType.GOLD, stage.getGoldReward(), StatTime.GLOBAL, ActionType.INCREASE);
+
+        setStage();
+        heroCurrent.copyStats();
+        //riferimentoView.refreshHero( StatType.EXP, heroCurrent.getStat(StatType.EXP, StatTime.GLOBAL));
+        save(Game.FOLDER_PATH + "/" + heroCurrent.getName() + ".dat");
+        
+        try {
+            Thread.sleep(ATTESA_EXP);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //View win = new Victory("Vittoria");
+    }
 }

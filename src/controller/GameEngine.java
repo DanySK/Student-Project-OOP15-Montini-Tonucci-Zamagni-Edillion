@@ -9,6 +9,8 @@ public interface GameEngine {
 
     void gioca();
     
+    void continues();
+    
     /**
      * view gives to controller the new hero built (e.g. from a gui panel)
      * @param hero

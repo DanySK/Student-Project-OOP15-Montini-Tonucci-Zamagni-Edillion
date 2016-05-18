@@ -1,5 +1,8 @@
 package model.entities;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import model.items.Durable;
@@ -25,6 +28,7 @@ public class Hero extends BasicEntity {
         super.globalStats.put(StatType.EXP, 0);
         super.globalStats.put(StatType.GOLD, 0);
         this.role = builder.role;
+        this.inventory = new Inventory();
     }
 
     /**
@@ -111,10 +115,19 @@ public class Hero extends BasicEntity {
 
     }
 
-    //TODO gestione dell'inventario
-    private class Inventory {
-        private Set<Usable> bag;
-        private Set<Durable> equip;
+    
+    public class Inventory {
+        private List<Usable> bag = new ArrayList<>();
+        private Set<Durable> equip = new HashSet<>();
+        
+        
+        public List<Usable> getBag() {
+            return bag;
+        }
+        
+        public Set<Durable> getEquip() {
+            return equip;
+        }
     }
 
 }

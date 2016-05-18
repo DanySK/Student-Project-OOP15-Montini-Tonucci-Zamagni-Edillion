@@ -55,30 +55,45 @@ public class Game implements GameEngine{
 
         View menu = new StartGUI("Menù principale");
     }
+    
+    /*
+     * NEL MENU' PRINCIPALE CI SARANNO 2 TASTI, NON UNO CON GIOCA
+     * I TASTI SARANNO:
+     * -CREA NUOVO PERSONAGGIO (chiamerà direttamente {View createPG = new CreateHeroGUI("Creazione del personaggio")} )
+     * -CONTINUA DA SALVATAGGIO (chiamerà il mio metodo(continues()) il quale gli aprira una schermata con i salvataggi 
+     *                           o per tornare al Menù principale.)
+     *          -selezionato il salvataggio mi passerà la stringa con il nome del salvataggio chiamando il mio metodo(gioca())
+     * 
+     * */
+    
+    
+    @Override
+    public void continues() {
+        File dir = new File(FOLDER_PATH);
+        String[] existingSave = dir.list();
+        
+        for (int i=0; i < existingSave.length; i++) {
+            String filename = existingSave[i];
+            System.out.println(filename);
+        }
+        
+        //View choiceSave = new ChoiceSaveGUI("Menù principale", existingSave);
+    }
 
     @Override
-    public void gioca() {
-        
-        //DOVRA' ESSERE SEPARATA IN DUE CLASSI DI MODO DA POTER SELEZIONARE IL SALVATAGGIO
-        //PER ORA DATO CHE NON C'E' ANCORA MODO DI GIOCARE NON CARICHERO' MAI IL SALVATAGGIO
-        
-        //IL PULSANTE "GIOCA" DOVRA' DIFFERENZIARE LA POSSIBILITA' O MENO DI CONTINUARE UNA PARTITA GIA' AVVIATA
-        //DEVO CREARE SICURAMENTE UN ALTRO METODO, DOBBIAMO PARLARE PER I CAMBIAMENTI
-        
-        File dir = new File(FOLDER_PATH);
-        String[] presence = dir.list();
-        
-        if (primaPartita != 0) {
-            System.out.println("cartella piena");
-            for (int i=0; i < presence.length; i++) {
-                // Get filename of file or directory
-                String filename = presence[i];
-                System.out.println(filename);
+    public void gioca(/*MI PASSI UNA STRING(stringaPassata)*/) {        //in commento c'è la versione "finale"
+        /*
+        if ( stringaPassata != "" ){ //appena scelto il caricamento
+            loadSave( FOLDER_PATH + "/" + stringaPassata + ".dat");
+        } else {
+            if(StageData.TUTORIAL.getState() == StageState.LOCKED) { //prima volta
+                StageData.TUTORIAL.setState(StageState.UNLOCKED);
             }
-            
-            loadSave( FOLDER_PATH + "/" + presence[0] + ".dat");
         }
-            
+        View selectStage = new SelezionaStageGUI("Selezione dello stage da affrontare");
+        */
+        
+        
         if (hero == NULL) { //PER ORA LO CREO POI VADO ALLO STAGE, SARA' DA CAMBIARE
             
             View createPG = new CreateHeroGUI("Creazione del personaggio");
@@ -94,7 +109,7 @@ public class Game implements GameEngine{
     public void buildHero(String name, Role role) {
         
         hero = new Hero.Builder().name(name).hp(20).level(1).speed(5).role(role).build();
-        gioca();
+        gioca(/* "" */);
     }
 
 
