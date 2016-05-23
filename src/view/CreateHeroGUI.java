@@ -44,6 +44,7 @@ public class CreateHeroGUI extends JFrame implements View {
         this.add(panel);
         
         this.pack();
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
 
