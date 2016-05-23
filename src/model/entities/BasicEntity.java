@@ -108,8 +108,9 @@ public class BasicEntity implements Entity {
     @Override
     public Skill getSkill(final int index) {
         return this.skillList.get(index);
-    }
+        }
 
+    @Override
     public String toString(final StatTime time) {
         final StringBuilder sb = new StringBuilder();
         return sb.append("Name: ").append(this.name)

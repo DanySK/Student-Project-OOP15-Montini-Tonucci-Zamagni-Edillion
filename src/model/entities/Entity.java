@@ -66,5 +66,12 @@ public interface Entity {
      * @return returns a skill data
      */
     Skill getSkill(int index);
+    
+    /**
+     * new tostring time-based.
+     * @param time StatTime
+     * @return string version
+     */
+    String toString(final StatTime time);
 
 }
