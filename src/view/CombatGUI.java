@@ -4,30 +4,22 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import controller.StageLoopImp;
 import model.entities.Entity;
 import model.entities.StatType;
 import model.skills.Skill;
 import view.panels.EnemiesPanel;
+import view.panels.HeroPanel;
 
 public class CombatGUI extends JFrame {
 
@@ -35,7 +27,9 @@ public class CombatGUI extends JFrame {
 
 
     List<JButton> attackButtonList = new ArrayList<>();
-   
+    JPanel sp = new JPanel(new BorderLayout());
+    JPanel swnp = new JPanel(new FlowLayout());
+    
     public CombatGUI(String title, StageLoopImp riferimentoController, List<Entity> monsterList, String heroName, 
             Map<StatType, Integer> heroStats, List<Skill> heroSkills) {
         super(title);
@@ -50,11 +44,10 @@ public class CombatGUI extends JFrame {
         double height = 600;
         this.setSize((int)(width), (int)(height));
         
-
         //Creazione pannello superiore e inferiore
-        //generateEnemiesPanel(monsterList);
+        
+        //Chiamata al metodo che genera il panello dei nemici
         generateEnemiesPanel(monsterList);
-        JPanel sp = new JPanel(new BorderLayout());
         
         sp.setPreferredSize(new Dimension((int)width,(int)height/2));
         
@@ -62,38 +55,15 @@ public class CombatGUI extends JFrame {
         
         //Creazione pannelli inferiore destro e inferiore sinistro
         JPanel swp = new JPanel(new BorderLayout());
-        JPanel sep = new JPanel(new GridBagLayout());
         swp.setPreferredSize(new Dimension((int)width/2,(int)height/2));
-        sep.setPreferredSize(new Dimension((int)width/2,(int)height/2));
-        swp.setBorder(BorderFactory.createLineBorder(Color.RED,3));
-        sep.setBorder(BorderFactory.createLineBorder(Color.BLUE,3));
         
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        JLabel nameLabel = new JLabel(heroName);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        nameLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        sep.add(nameLabel,gbc);
-
-        Set<StatType> heroStatsLabelSet = heroStats.keySet();
-        Collection<Integer> heroStatsFieldCollection = heroStats.values();
-        List<JLabel> heroStatsLabel = heroStatsLabelSet.stream().map(String::valueOf).map(JLabel::new).collect(Collectors.toList());
-        List<JTextField> heroStatsField = heroStatsFieldCollection.stream().map(String::valueOf).map(JTextField::new).collect(Collectors.toList());
-        heroStatsLabel.forEach(b->{
-            gbc.gridy++;
-            sep.add(b,gbc);
-        });
-        gbc.gridy=0;
-        gbc.gridx=1;
-        heroStatsField.forEach(b->{
-            gbc.gridy++;
-            sep.add(b,gbc);
-        });
+        swp.setBorder(BorderFactory.createLineBorder(Color.RED,3));
+        
+        //Chiamata al metodo che genera il pannello dell'eroe
+        generateHeroPanel(heroName,heroStats);
         
         //Creazione pannelli inferiore detro sopra e inferiore destro sotto
-        JPanel swnp = new JPanel(new FlowLayout());
+        
         JPanel swsp = new JPanel(new BorderLayout());
         swnp.setPreferredSize(new Dimension((int)width/2,(int)height/4));
         swsp.setPreferredSize(new Dimension((int)width/2,(int)height/2));
@@ -124,10 +94,8 @@ public class CombatGUI extends JFrame {
         swp.add(swsp,BorderLayout.SOUTH);
         
         sp.add(swp,BorderLayout.WEST);
-        sp.add(sep,BorderLayout.EAST);
         
         this.add(sp,BorderLayout.SOUTH);
-        
         
         //visto che c'è setsize il pack non dovrebbe servire
         this.pack();
@@ -136,17 +104,33 @@ public class CombatGUI extends JFrame {
         this.setVisible(true);
     }
     
+    public void Victory() {
+        JOptionPane.showMessageDialog(this, "Complimenti");
+        this.setVisible(false);
+        new SelezionaStageGUI("Selezione dello stage da affrontare");
+    }
+    
+    //Generazione del pannello delle statistiche dell'hero
+    public JPanel generateHeroPanel(String heroName, Map<StatType, Integer> heroStats) {
+        JPanel heroStatsPanel = new HeroPanel(heroName, heroStats);
+        sp.add(heroStatsPanel,BorderLayout.EAST);
+        heroStatsPanel.revalidate();
+        return heroStatsPanel;
+    }
+    
+    //Enable dei bottoni
     public void enableButtons(boolean state){
         for (JButton b : attackButtonList){
             b.setEnabled(state);
         }
+        swnp.revalidate();
     }
     
     //Generazione del pannello dei nemici
     public JPanel generateEnemiesPanel(List<Entity> monsterList){
-        JPanel panel1 = new EnemiesPanel(monsterList);
-        this.add(panel1,BorderLayout.NORTH);
-        panel1.revalidate();
-        return panel1;
+        JPanel monsterStatsPanel = new EnemiesPanel(monsterList);
+        this.add(monsterStatsPanel,BorderLayout.NORTH);
+        monsterStatsPanel.revalidate();
+        return monsterStatsPanel;
     }
 }

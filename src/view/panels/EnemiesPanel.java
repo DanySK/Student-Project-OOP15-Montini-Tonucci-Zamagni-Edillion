@@ -81,7 +81,7 @@ public class EnemiesPanel extends JPanel {
         gbc.gridy = 0;
         this.add(new JLabel("HP Bar"),gbc);
         for (Entity i : monsterList){
-            JProgressBar pb = new JProgressBar(0,i.getStat(StatType.HP, StatTime.CURRENT)); //modificare il costruttore mettendo minimo e massimo e corrente
+            JProgressBar pb = new JProgressBar(0,i.getStat(StatType.HP, StatTime.GLOBAL)); //modificare il costruttore mettendo minimo e massimo e corrente
             pb.setValue(i.getStat(StatType.HP, StatTime.CURRENT));
             pb.setStringPainted(true);
             gbc.gridy++;
