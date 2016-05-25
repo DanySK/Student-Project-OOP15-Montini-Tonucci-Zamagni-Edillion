@@ -132,7 +132,7 @@ public class Game implements GameEngine{
         Map<StageData, StageState> mapStage = null;
         
         try {
-            fileInputStream = new FileInputStream(fileSelect);
+            fileInputStream = new FileInputStream(FOLDER_PATH + "/" + fileSelect + ".dat");
             objectInputStream = new ObjectInputStream(fileInputStream);
             
             saveList = (ArrayList<Object>) objectInputStream.readObject();

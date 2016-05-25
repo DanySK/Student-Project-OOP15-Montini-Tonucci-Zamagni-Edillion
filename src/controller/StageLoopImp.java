@@ -27,7 +27,7 @@ public class StageLoopImp implements StageLoop {
     public static final double DIV_SPEED = 30.00;
     public static final int ATTESA_EXP = 1000;
     private Stage stage;
-    private int counter, speedHero, maxHPhero, maxMANAhero;
+    private int counter, speedHero, maxHPhero, maxMANAhero, viewTime;
     private volatile boolean pausa = true;
     private Hero heroCurrent;
     private CombatGUI riferimentoView;
@@ -68,10 +68,12 @@ public class StageLoopImp implements StageLoop {
         riferimentoView.enableButtons(false);
         
         if ( heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 && monsterId != -1 ) {
+
+            speedHero = (int) ((DIV_SPEED/heroCurrent.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
+            viewTime = speedHero/200;
             
             agent.pausaCounting();
 
-            speedHero = (int) ((DIV_SPEED/heroCurrent.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
             try {
                 Thread.sleep(speedHero);
                 
@@ -80,7 +82,7 @@ public class StageLoopImp implements StageLoop {
                     attackEffective(heroCurrent, listMonster.get(monsterId), mossa);
                     
                     riferimentoView.generateEnemiesPanel(listMonster);
-                    
+
                     agent.pausaCounting();
                     
                     if ( Stages.isCleared(listMonster) ) {
@@ -174,9 +176,11 @@ public class StageLoopImp implements StageLoop {
                     Thread.sleep(10);
                     if (!pausa) {
                         counter += 1;
-                        /*if (counter % 10 == 0) {
-                            System.out.println("Aumentato: " + counter);
-                        }*/
+                        
+                        if (counter % 20 == 0) {
+                            riferimentoView.refreshCount(viewTime--);
+                            //System.out.println("Tempo restante: " + viewTime--);
+                        }
                         
                     }
                 } catch ( InterruptedException ex) {
@@ -290,7 +294,7 @@ public class StageLoopImp implements StageLoop {
         setStage();
         heroCurrent.copyStats();
         riferimentoView.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
-        //save(Game.FOLDER_PATH + "/" + heroCurrent.getName() + ".dat");
+        save(Game.FOLDER_PATH + "/" + heroCurrent.getName() + ".dat");
         
         try {
             Thread.sleep(ATTESA_EXP);

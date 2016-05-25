@@ -14,6 +14,10 @@ import model.items.Usable;
  */
 public class Hero extends BasicEntity implements Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private final Role role;
     private int exp;
     private int gold;
@@ -117,7 +121,11 @@ public class Hero extends BasicEntity implements Serializable {
     }
 
     
-    public class Inventory {
+    public class Inventory implements Serializable {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
         private List<Usable> bag = new ArrayList<>();
         private Set<Durable> equip = new HashSet<>();
         
