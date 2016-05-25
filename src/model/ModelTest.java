@@ -3,13 +3,12 @@ package model;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.Map;
-import model.entities.BasicEntity;
-import model.entities.Entity;
+import java.util.EnumMap;
+
+
 import model.entities.BasicEntity.ActionType;
 import model.entities.BasicEntity.StatTime;
-import model.items.Durable;
-import model.items.ItemDurable;
+
 import model.items.ItemUsable;
 import model.entities.Hero;
 import model.entities.MonsterFactory;
@@ -32,31 +31,55 @@ public class ModelTest {
      */
     @org.junit.Test
     public void testEntityCreations() {
+        //Hero builder
         Hero hero = new Hero.Builder().name("MyHero").level(2).speed(10).role(Role.WARRIOR).build();
+        //Checking stats
         assertEquals("MyHero", hero.getName());
         assertEquals(2, hero.getStat(StatType.LEVEL, StatTime.CURRENT));
         assertEquals(10, hero.getStat(StatType.SPEED, StatTime.CURRENT));
         assertEquals(StatType.HP.getStdValue(), hero.getStat(StatType.HP, StatTime.CURRENT)); //hitpoint not explained
         assertEquals(Role.WARRIOR, hero.getRole());
+
+        //Decreasing life under 0 to check if goes negative
         hero.setStat(StatType.HP, 500, StatTime.CURRENT, ActionType.DECREASE);
         assertEquals(0, hero.getStat(StatType.HP, StatTime.CURRENT));
+
+        //Setting stats
+        hero.setStat(StatType.GOLD, 200, StatTime.GLOBAL, ActionType.INCREASE);
+        assertEquals(200, hero.getStat(StatType.GOLD, StatTime.GLOBAL));
+        assertEquals(0, hero.getStat(StatType.GOLD, StatTime.CURRENT));
+
         }
-    
+
     /**
-     * 
+     * Testing stage's stuff.
      */
     @org.junit.Test
     public void testStage() {
+       //Setting two stages' state
        StageData.TUTORIAL.setState(StageState.DONE);
-       StageData.THECAVE.setState(StageState.UNLOCKED);
-       Map<StageData, StageState> stageMap = Stages.generateStagesData();
-      // System.out.println(stageMap.values());
+       StageData.FIRSTMISSION.setState(StageState.UNLOCKED);
+       //Generate stages' actual states' map
+       EnumMap<StageData, StageState> stageMap = Stages.generateStagesData();
+       StageState[] dataTest = {StageState.DONE, StageState.UNLOCKED, StageState.LOCKED, StageState.LOCKED};
+       assertArrayEquals(dataTest, stageMap.values().toArray());
+
+       //Changing two other values
        StageData.FIRSTMISSION.setState(StageState.DONE);
-     //  System.out.println(Stages.generateStagesData().values());
-       Stages.setStagesData(stageMap);
-    //   System.out.println(stageMap.values());
+       StageData.THECAVE.setState(StageState.UNLOCKED);
+       StageState[] dataTest2 = {StageState.DONE, StageState.DONE, StageState.UNLOCKED, StageState.LOCKED};
+       assertArrayEquals(dataTest2, Stages.generateStagesData().values().toArray());
     }
-    
+
+    /**
+     * Testing providers.
+     */
+    @org.junit.Test
+    public void testProvider() {
+        MonsterFactory factory = new MonsterFactory();
+        //assertEquals(Arrays.asList(factory.createMonster(MonsterTemplates.PEASANT)), StageData.TUTORIAL.getEnemyList());
+    }
+
     /**
      * 
      */
@@ -69,7 +92,7 @@ public class ModelTest {
         hero.getInventory().getBag().add(item);
         hero.getInventory().getBag().add(item);
         
-        System.out.println(hero.getInventory().getBag());
+       // System.out.println(hero.getInventory().getBag());
         
         switch (item.getItemType()) {
             case PERSONAL:
@@ -85,24 +108,18 @@ public class ModelTest {
         }
         hero.getInventory().getBag().remove(item);
         
-        System.out.println(hero.getInventory().getBag());
-        System.out.println(hero.getStat(StatType.HP, StatTime.GLOBAL));
-        System.out.println(hero.getStat(StatType.HP, StatTime.CURRENT));
+       // System.out.println(hero.getInventory().getBag());
+       // System.out.println(hero.getStat(StatType.HP, StatTime.GLOBAL));
+       // System.out.println(hero.getStat(StatType.HP, StatTime.CURRENT));
     }
 
     /**
-     * Testing providers.
+     * Testing skill's modifier is in range on 10000 attempts.
      */
-    @org.junit.Test
-    public void testProvider() {
-        MonsterFactory factory = new MonsterFactory();
-     //   assertEquals(Arrays.asList(factory.createMonster(MonsterTemplates.PEASANT)), StageData.TUTORIAL.getEnemyList());
-    }
-    
     @org.junit.Test
     public void testSkillModifier() {
         SkillData skill = SkillData.FLARE;
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             int dmg = skill.useSkill();
             if (dmg > skill.getDamage() + skill.getModifier() || dmg < skill.getDamage() - skill.getModifier()) {
                 fail();

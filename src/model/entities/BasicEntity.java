@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,9 +33,9 @@ public class BasicEntity implements Entity, Serializable {
      * @param skillList
      *            entity's skillset
      */
-    private BasicEntity(final String name, final Optional<Integer> hp, final Optional<Integer> level, final Optional<Integer> speed,
-            final Optional<Integer> mana, final Optional<Integer> manaRegen, final SkillType[] types)
-                    throws IllegalArgumentException {
+    private BasicEntity(final String name, final Optional<Integer> hp, final Optional<Integer> level,
+            final Optional<Integer> speed, final Optional<Integer> mana, final Optional<Integer> manaRegen,
+            final SkillType[] types) throws IllegalArgumentException {
 
         if (name == null) {
             throw new IllegalArgumentException("Insert a name not null");
@@ -57,7 +58,7 @@ public class BasicEntity implements Entity, Serializable {
 
     @Override
     public int getStat(final StatType statType, final StatTime time) {
-     return (time.equals(StatTime.CURRENT) ? currStats : globalStats).get(statType);
+        return (time.equals(StatTime.CURRENT) ? currStats : globalStats).get(statType);
     }
 
     @Override
@@ -113,18 +114,64 @@ public class BasicEntity implements Entity, Serializable {
     @Override
     public Skill getSkill(final int index) {
         return this.skillList.get(index);
+    }
+
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
         }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        BasicEntity other = (BasicEntity) obj;
+
+        for (Entry<StatType, Integer> e : this.currStats.entrySet()) {
+            if (other.getStat(e.getKey(), StatTime.CURRENT) != e.getValue()) {
+                return false;
+            }
+        }
+
+        for (Entry<StatType, Integer> e : this.globalStats.entrySet()) {
+            if (other.getStat(e.getKey(), StatTime.GLOBAL) != e.getValue()) {
+                return false;
+            }
+        }
+
+
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+
+        }
+
+        if (skillList == null) {
+            if (other.skillList != null) {
+                return false;
+            }
+        } else if (!skillList.equals(other.skillList)) {
+            return false;
+        }
+
+        return true;
+    }
 
     @Override
     public String toString(final StatTime time) {
         final StringBuilder sb = new StringBuilder();
-        return sb.append("Name: ").append(this.name)
-                .append("\nStats: \tHP: ").append(this.getStat(StatType.HP, time))
-                .append("\n\tSpeed: ").append(this.getStat(StatType.SPEED, time))
-                .append("\n\tLevel: ").append(this.getStat(StatType.LEVEL, time))
-                .append("\n\tMana: ").append(this.getStat(StatType.MANA, time))
-                .append("\n\tMana Regen: ").append(this.getStat(StatType.MANAREGEN, time))
-                .append("\n\tSkills: ").append(this.getAllowedSkillList().toString()).toString();
+        return sb.append("Name: ").append(this.name).append("\nStats: \tHP: ").append(this.getStat(StatType.HP, time))
+                .append("\n\tSpeed: ").append(this.getStat(StatType.SPEED, time)).append("\n\tLevel: ")
+                .append(this.getStat(StatType.LEVEL, time)).append("\n\tMana: ")
+                .append(this.getStat(StatType.MANA, time)).append("\n\tMana Regen: ")
+                .append(this.getStat(StatType.MANAREGEN, time)).append("\n\tSkills: ")
+                .append(this.getAllowedSkillList().toString()).toString();
     }
 
     /**

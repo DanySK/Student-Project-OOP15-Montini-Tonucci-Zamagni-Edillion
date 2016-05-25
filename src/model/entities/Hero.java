@@ -17,10 +17,9 @@ public class Hero extends BasicEntity implements Serializable {
     /**
      * 
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5584220020125287376L;
+
     private final Role role;
-    private int exp;
-    private int gold;
 
     private Inventory inventory;
 
@@ -32,6 +31,7 @@ public class Hero extends BasicEntity implements Serializable {
         super(builder);
         super.globalStats.put(StatType.EXP, 0);
         super.globalStats.put(StatType.GOLD, 0);
+        super.copyStats();
         this.role = builder.role;
         this.inventory = new Inventory();
     }
@@ -56,9 +56,9 @@ public class Hero extends BasicEntity implements Serializable {
      * @return hero's level after reward computation
      */
     public int gainExp(final int reward) {
-        this.exp = this.exp + reward;
+        this.setStat(StatType.EXP, reward, StatTime.GLOBAL, ActionType.INCREASE);
         if (this.getStat(StatType.LEVEL, StatTime.GLOBAL) < StatType.LEVEL.getMaxValue()) {
-            while (this.exp > this.expToLevelUp()) {
+            while (this.getStat(StatType.EXP, StatTime.GLOBAL) > this.expToLevelUp()) {
                 this.levelUp();
             }
         }
@@ -78,7 +78,8 @@ public class Hero extends BasicEntity implements Serializable {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         return sb.append(super.toString())
-                 .append("\n\tExp: ").append(this.exp)
+                 .append("\n\tExp: ").append(this.getStat(StatType.EXP, StatTime.GLOBAL))
+                 .append("\n\tGold: ").append(this.getStat(StatType.GOLD, StatTime.GLOBAL))
                  .append("\nRole: ").append(this.role)
                  .toString();
     }
@@ -120,7 +121,7 @@ public class Hero extends BasicEntity implements Serializable {
 
     }
 
-    
+
     public class Inventory implements Serializable {
         /**
          * 

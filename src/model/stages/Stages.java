@@ -1,6 +1,7 @@
 package model.stages;
 
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public final class Stages {
      * sets all stage's state from a map, load uti.
      * @param stageMap a map generated from the other method
      */
-    public static void setStagesData(final Map<StageData, StageState> stageMap) {
+    public static void setStagesData(final EnumMap<StageData, StageState> stageMap) {
         stageMap.keySet().stream().forEach(k -> k.setState(stageMap.get(k)));
     }
 
@@ -40,8 +41,8 @@ public final class Stages {
      * generates a map with every stage and its stage, save uti.
      * @return the map stage-state
      */
-    public static Map<StageData, StageState> generateStagesData() {
-        Map<StageData, StageState> stageMap = new HashMap<>();
+    public static EnumMap<StageData, StageState> generateStagesData() {
+        EnumMap<StageData, StageState> stageMap = new EnumMap<>(StageData.class);
         Arrays.asList(StageData.values()).stream().forEach(s -> stageMap.put(s, s.getState()));
         return stageMap; 
     }

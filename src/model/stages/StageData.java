@@ -1,7 +1,9 @@
 package model.stages;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import model.entities.Entity;
@@ -9,6 +11,7 @@ import model.entities.MonsterFactory;
 import model.entities.MonsterTemplates;
 import model.entities.StatType;
 import model.entities.BasicEntity.StatTime;
+import model.entities.RandomName;
 
 /**
  * All stages data.
@@ -52,8 +55,14 @@ public enum StageData implements Stage {
 
     @Override
     public List<Entity> getEnemyList() {
+        List<RandomName> namePool = new ArrayList<>(Arrays.asList(RandomName.values()));
+        Random rnd = new Random();
         MonsterFactory factory = new MonsterFactory();
-        return Arrays.asList(this.enemies).stream().map(e -> factory.createMonster(e))
+        return Arrays.asList(this.enemies).stream()
+                .map(e -> {
+                    String suffix = " " + namePool.remove(rnd.nextInt(namePool.size())).toString();
+                    return factory.createMonster(e, suffix);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -90,4 +99,5 @@ public enum StageData implements Stage {
     private int calculateReward() {
         return this.getEnemyList().stream().mapToInt(e -> Math.round((e.getStat(StatType.HP, StatTime.CURRENT) * EXP_HP_MOD * e.getStat(StatType.LEVEL, StatTime.CURRENT)))).sum();
     }
+
 }

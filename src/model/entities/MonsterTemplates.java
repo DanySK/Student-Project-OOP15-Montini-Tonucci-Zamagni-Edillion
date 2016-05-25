@@ -85,5 +85,4 @@ public enum MonsterTemplates {
     public SkillType[] getAssign() {
         return assign;
     }
-
 }
