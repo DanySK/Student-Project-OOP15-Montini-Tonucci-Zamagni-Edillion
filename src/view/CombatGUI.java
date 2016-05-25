@@ -114,6 +114,7 @@ public class CombatGUI extends JFrame {
     public JPanel generateHeroPanel(String heroName, Map<StatType, Integer> heroStats) {
         JPanel heroStatsPanel = new HeroPanel(heroName, heroStats);
         sp.add(heroStatsPanel,BorderLayout.EAST);
+        heroStatsPanel.repaint();
         heroStatsPanel.revalidate();
         return heroStatsPanel;
     }
@@ -130,6 +131,7 @@ public class CombatGUI extends JFrame {
     public JPanel generateEnemiesPanel(List<Entity> monsterList){
         JPanel monsterStatsPanel = new EnemiesPanel(monsterList);
         this.add(monsterStatsPanel,BorderLayout.NORTH);
+        monsterStatsPanel.repaint();
         monsterStatsPanel.revalidate();
         return monsterStatsPanel;
     }
