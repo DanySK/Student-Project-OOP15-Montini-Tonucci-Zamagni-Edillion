@@ -1,5 +1,6 @@
 package model.entities;
 
+import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +13,12 @@ import model.skills.SkillType;
 /**
  * The basic entity that build monsters and gets extended by Heroes.
  */
-public class BasicEntity implements Entity {
+public class BasicEntity implements Entity, Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6177994680160567847L;
     private final String name;
     protected final EnumMap<StatType, Integer> globalStats = new EnumMap<>(StatType.class);
     private final Map<StatType, Integer> currStats = new EnumMap<>(StatType.class);
@@ -72,7 +77,7 @@ public class BasicEntity implements Entity {
         try { // Negative HP set to 0
             statType.check(newValue);
         } catch (IllegalArgumentException e) {
-            if (statType.equals(StatType.HP) && newValue.get() < 0) {
+            if (statType.equals(StatType.HP) && newValue.get() <= 0) {
                 newValue = Optional.of(0);
                 action = ActionType.SET;
             } else {

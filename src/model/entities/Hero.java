@@ -1,5 +1,6 @@
 package model.entities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,7 +12,7 @@ import model.items.Usable;
 /**
  * Main hero class.
  */
-public class Hero extends BasicEntity {
+public class Hero extends BasicEntity implements Serializable {
 
     private final Role role;
     private int exp;
