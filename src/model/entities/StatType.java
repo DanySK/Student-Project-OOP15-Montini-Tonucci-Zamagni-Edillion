@@ -8,10 +8,10 @@ import java.util.Optional;
  */
 public enum StatType {
     HP("HitPoints",1, 100, 20000),
-    LEVEL("Level",1, 1, 100),
-    SPEED("Speed",1, 10, 120),
     MANA("Mana",0, 50, 5000),
     MANAREGEN("Mana Regen",0, 5, 500),
+    LEVEL("Level",1, 1, 100),
+    SPEED("Speed",1, 10, 120),
     EXP("Experience", 0, 0, Integer.MAX_VALUE),
     GOLD("Gold", 0, 0, Integer.MAX_VALUE);
 
