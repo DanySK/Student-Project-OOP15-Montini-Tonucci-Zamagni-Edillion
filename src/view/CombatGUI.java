@@ -11,8 +11,11 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
 
 import controller.StageLoopImp;
 import model.entities.Entity;
@@ -25,10 +28,12 @@ public class CombatGUI extends JFrame {
 
     private static final long serialVersionUID = -5474755205851269039L;
 
-
     List<JButton> attackButtonList = new ArrayList<>();
+    JPanel np = new JPanel(new BorderLayout());
     JPanel sp = new JPanel(new BorderLayout());
     JPanel swnp = new JPanel(new FlowLayout());
+    JProgressBar turnProgressBar = new JProgressBar();
+    JLabel turnlbl = new JLabel("ti prego sta volta funziona");
     
     public CombatGUI(String title, StageLoopImp riferimentoController, List<Entity> monsterList, String heroName, 
             Map<StatType, Integer> heroStats, List<Skill> heroSkills) {
@@ -48,6 +53,14 @@ public class CombatGUI extends JFrame {
         
         //Chiamata al metodo che genera il panello dei nemici
         generateEnemiesPanel(monsterList);
+        
+        JPanel logPanel = new JPanel(new BorderLayout());
+        logPanel.setPreferredSize(new Dimension((int)width,50));
+        logPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE,3));
+        
+        JTextArea log = new JTextArea();
+        logPanel.add(log);
+        
         
         sp.setPreferredSize(new Dimension((int)width,(int)height/2));
         
@@ -76,6 +89,9 @@ public class CombatGUI extends JFrame {
             attackButtonList.add(button);
             button.addActionListener(e -> {
                 String[] monsterArray = monsterList.stream().map(Entity::getName).map(String::new).toArray(size -> new String[size]);
+                for (String s : monsterArray){
+                    System.out.println(s);
+                } 
                 int n = JOptionPane.showOptionDialog(this,
                         "Choose the enemy to attack",
                         "Select enemy to attack",
@@ -84,17 +100,26 @@ public class CombatGUI extends JFrame {
                         null,
                         monsterArray,
                         monsterArray[0]);
+               log.setText("Hero " + heroName + " attacks " + monsterArray[n] + " with " + i.getName());
+               //log.repaint();
+               //log.revalidate();
                riferimentoController.attack(i, n);
             });
             swnp.add(button);
         }
         
+        swnp.add(turnlbl);
+        swnp.add(turnProgressBar);
+        
+        
         //Aggiunta dei vari componenti alla CombatGUI
         swp.add(swnp,BorderLayout.NORTH);
         swp.add(swsp,BorderLayout.SOUTH);
         
+        np.add(logPanel,BorderLayout.SOUTH);
         sp.add(swp,BorderLayout.WEST);
         
+        this.add(np,BorderLayout.NORTH);
         this.add(sp,BorderLayout.SOUTH);
         
         //visto che c'è setsize il pack non dovrebbe servire
@@ -104,8 +129,14 @@ public class CombatGUI extends JFrame {
         this.setVisible(true);
     }
     
-    public void Victory() {
+    public void victory() {
         JOptionPane.showMessageDialog(this, "Complimenti");
+        this.setVisible(false);
+        new SelezionaStageGUI("Selezione dello stage da affrontare");
+    }
+    
+    public void defeat() {
+        JOptionPane.showMessageDialog(this, "So bad");
         this.setVisible(false);
         new SelezionaStageGUI("Selezione dello stage da affrontare");
     }
@@ -130,9 +161,18 @@ public class CombatGUI extends JFrame {
     //Generazione del pannello dei nemici
     public JPanel generateEnemiesPanel(List<Entity> monsterList){
         JPanel monsterStatsPanel = new EnemiesPanel(monsterList);
-        this.add(monsterStatsPanel,BorderLayout.NORTH);
+        np.add(monsterStatsPanel,BorderLayout.NORTH);
         monsterStatsPanel.repaint();
         monsterStatsPanel.revalidate();
         return monsterStatsPanel;
+    }
+    
+    public void refreshCount(int time){
+        turnProgressBar.setValue(time);
+        turnProgressBar.repaint();
+        turnProgressBar.revalidate();
+        turnlbl.setText(String.valueOf(time));
+        turnlbl.repaint();
+        turnlbl.revalidate();
     }
 }

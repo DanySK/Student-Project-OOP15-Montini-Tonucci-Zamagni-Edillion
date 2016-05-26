@@ -28,10 +28,18 @@ public class StartGUI extends JFrame implements View {
             Game.getInstance().gioca();
             this.setVisible(false);
         });
-        JButton settings = new JButton("IMPOSTAZIONI");
-        JButton credits = new JButton("CREDITI");
+        
+        JButton loadgame = new JButton("LOAD GAME");
+        loadgame.addActionListener(e -> {
+            Game.getInstance().continues();
+            this.setVisible(false);
+        });
+        
+        JButton settings = new JButton("SETTINGS");
+        JButton credits = new JButton("CREDITS");
         
         panel.add(gioca);
+        panel.add(loadgame);
         panel.add(settings);
         panel.add(credits);
         
@@ -40,15 +48,6 @@ public class StartGUI extends JFrame implements View {
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
-    
-    /*public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-               new StartGUI("Game");
-            }
-            
-        });
-    }*/
 
     @Override
     public void refreshState(List<BasicEntity> enemyList) {
