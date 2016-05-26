@@ -5,9 +5,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import model.entities.Hero;
@@ -29,7 +29,6 @@ public class Game implements GameEngine{
     private Hero NULL;
     private Hero hero = NULL;
     public boolean win;
-    private int primaPartita = 0;
     
     
     /**
@@ -129,7 +128,7 @@ public class Game implements GameEngine{
         FileInputStream fileInputStream = null;
         Iterator<Object> iterSave = null;
         ObjectInputStream objectInputStream = null;
-        Map<StageData, StageState> mapStage = null;
+        EnumMap<StageData, StageState> mapStage = null;
         
         try {
             fileInputStream = new FileInputStream(FOLDER_PATH + "/" + fileSelect + ".dat");
@@ -148,7 +147,7 @@ public class Game implements GameEngine{
         iterSave = saveList.iterator();
         
         hero = (Hero)iterSave.next();
-        mapStage = (Map<StageData, StageState>)iterSave.next();
+        mapStage = (EnumMap<StageData, StageState>)iterSave.next();
 
         Stages.setStagesData(mapStage);
        }
