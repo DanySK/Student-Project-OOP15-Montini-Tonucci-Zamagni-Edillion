@@ -16,6 +16,7 @@ import model.stages.StageData;
 import model.stages.StageState;
 import model.stages.Stages;
 import view.CreateHeroGUI;
+import view.LoadSaveGUI;
 import view.SelezionaStageGUI;
 import view.StartGUI;
 import view.View;
@@ -49,9 +50,6 @@ public class Game implements GameEngine{
             new File(FOLDER_PATH).mkdir();
         }
         
-        StageData.TUTORIAL.setState(StageState.UNLOCKED);
-        
-
         View menu = new StartGUI("Menù principale");
     }
     
@@ -76,39 +74,27 @@ public class Game implements GameEngine{
             System.out.println(filename);
         }
         
-        //View choiceSave = new ChoiceSaveGUI("Menù principale", existingSave);
+        View choiceSave = new LoadSaveGUI("Menù principale", existingSave);
     }
 
     @Override
-    public void gioca(/*MI PASSI UNA STRING(stringaPassata)*/) {        //in commento c'è la versione "finale"
-        /*
+    public void gioca(String stringaPassata) {
+        
         if ( stringaPassata != "" ){ //appena scelto il caricamento
-            loadSave( FOLDER_PATH + "/" + stringaPassata + ".dat");
+            loadSave(stringaPassata);
         } else {
             if(StageData.TUTORIAL.getState() == StageState.LOCKED) { //prima volta
                 StageData.TUTORIAL.setState(StageState.UNLOCKED);
             }
         }
         View selectStage = new SelezionaStageGUI("Selezione dello stage da affrontare");
-        */
-        
-        
-        if (hero == NULL) { //PER ORA LO CREO POI VADO ALLO STAGE, SARA' DA CAMBIARE
-            
-            View createPG = new CreateHeroGUI("Creazione del personaggio");
-            
-        } else {
-        
-            View selectStage = new SelezionaStageGUI("Selezione dello stage da affrontare"); 
-        }
-        
     }
 
     @Override
     public void buildHero(String name, Role role) {
         
         hero = new Hero.Builder().name(name).hp(20).level(1).speed(5).role(role).build();
-        gioca(/* "" */);
+        gioca("");
     }
 
 
@@ -131,7 +117,7 @@ public class Game implements GameEngine{
         EnumMap<StageData, StageState> mapStage = null;
         
         try {
-            fileInputStream = new FileInputStream(FOLDER_PATH + "/" + fileSelect + ".dat");
+            fileInputStream = new FileInputStream(FOLDER_PATH + "/" + fileSelect);
             objectInputStream = new ObjectInputStream(fileInputStream);
             
             saveList = (ArrayList<Object>) objectInputStream.readObject();
