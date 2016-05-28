@@ -30,7 +30,7 @@ public class EnemiesPanel extends JPanel {
     public EnemiesPanel(List<Entity> monsterList){
         
         this.setLayout(new GridBagLayout());
-        this.setPreferredSize(new Dimension((int)width,250));
+        this.setPreferredSize(new Dimension((int)width,(int)height/3));
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK,4));
         
         GridBagConstraints gbc = new GridBagConstraints();

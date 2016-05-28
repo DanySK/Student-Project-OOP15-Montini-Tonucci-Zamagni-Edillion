@@ -23,9 +23,9 @@ public class StartGUI extends JFrame implements View {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPanel panel = new JPanel();
         
-        JButton gioca = new JButton("GIOCA");
+        JButton gioca = new JButton("PLAY");
         gioca.addActionListener(e -> {
-            Game.getInstance().gioca();
+            new CreateHeroGUI("Character Creation");
             this.setVisible(false);
         });
         

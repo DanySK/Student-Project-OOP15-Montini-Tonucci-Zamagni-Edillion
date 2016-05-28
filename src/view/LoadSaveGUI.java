@@ -27,7 +27,7 @@ public class LoadSaveGUI extends JFrame implements View {
         JComboBox<String> loadSaveCB = new JComboBox<>(existingSave);
         JButton loadSaveButton = new JButton("Load");
         loadSaveButton.addActionListener(e -> {
-            Game.getInstance().gioca(/*(String)loadSaveCB.getSelectedItem()*/);
+            Game.getInstance().gioca((String)loadSaveCB.getSelectedItem());
             this.setVisible(false);
         });
         

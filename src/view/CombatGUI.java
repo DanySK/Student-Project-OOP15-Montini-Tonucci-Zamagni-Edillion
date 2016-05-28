@@ -15,7 +15,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 
 import controller.StageLoopImp;
 import model.entities.Entity;
@@ -32,8 +34,10 @@ public class CombatGUI extends JFrame {
     JPanel np = new JPanel(new BorderLayout());
     JPanel sp = new JPanel(new BorderLayout());
     JPanel swnp = new JPanel(new FlowLayout());
+    JPanel swsp = new JPanel(new BorderLayout());
     JProgressBar turnProgressBar = new JProgressBar();
     JLabel turnlbl = new JLabel("ti prego sta volta funziona");
+    JTextArea log = new JTextArea();
     
     public CombatGUI(String title, StageLoopImp riferimentoController, List<Entity> monsterList, String heroName, 
             Map<StatType, Integer> heroStats, List<Skill> heroSkills) {
@@ -55,11 +59,12 @@ public class CombatGUI extends JFrame {
         generateEnemiesPanel(monsterList);
         
         JPanel logPanel = new JPanel(new BorderLayout());
-        logPanel.setPreferredSize(new Dimension((int)width,50));
+        logPanel.setPreferredSize(new Dimension((int)width,(int)height/6));
         logPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE,3));
         
-        JTextArea log = new JTextArea();
-        logPanel.add(log);
+        JScrollPane scrollBar = new JScrollPane(log);
+        scrollBar.setVerticalScrollBarPolicy ( ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
+        logPanel.add(scrollBar);
         
         
         sp.setPreferredSize(new Dimension((int)width,(int)height/2));
@@ -77,10 +82,9 @@ public class CombatGUI extends JFrame {
         
         //Creazione pannelli inferiore detro sopra e inferiore destro sotto
         
-        JPanel swsp = new JPanel(new BorderLayout());
         swnp.setPreferredSize(new Dimension((int)width/2,(int)height/4));
-        swsp.setPreferredSize(new Dimension((int)width/2,(int)height/2));
         swnp.setBorder(BorderFactory.createLineBorder(Color.BLACK,4));
+        swsp.setPreferredSize(new Dimension((int)width/2,(int)height/2));
         swsp.setBorder(BorderFactory.createLineBorder(Color.BLUE,4));
         
         //Creazione bottoni nel pannello delle skill
@@ -100,7 +104,7 @@ public class CombatGUI extends JFrame {
                         null,
                         monsterArray,
                         monsterArray[0]);
-               log.setText("Hero " + heroName + " attacks " + monsterArray[n] + " with " + i.getName());
+               //log.setText("Hero " + heroName + " attacks " + monsterArray[n] + " with " + i.getName());
                //log.repaint();
                //log.revalidate();
                riferimentoController.attack(i, n);
@@ -110,7 +114,6 @@ public class CombatGUI extends JFrame {
         
         swnp.add(turnlbl);
         swnp.add(turnProgressBar);
-        
         
         //Aggiunta dei vari componenti alla CombatGUI
         swp.add(swnp,BorderLayout.NORTH);
@@ -165,6 +168,10 @@ public class CombatGUI extends JFrame {
         monsterStatsPanel.repaint();
         monsterStatsPanel.revalidate();
         return monsterStatsPanel;
+    }
+    
+    public void refreshCombatLog(String attacker, String target, String skill, int damage){
+        log.append(attacker + " attacks " + target + " with " + skill + " for " + damage + " damage\n");
     }
     
     public void refreshCount(int time){
