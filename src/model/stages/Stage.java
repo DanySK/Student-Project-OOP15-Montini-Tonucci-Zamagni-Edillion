@@ -28,10 +28,15 @@ public interface Stage {
     int getGoldReward();
 
     /**
-     * Rebuilds the enemies list by new monster instances from the factory.
+     * returns the current list, create a new one by calling restoreEnemyList if no list is present
      * @return a new list with new enemies
      */
     List<Entity> getEnemyList();
+    
+    /**
+     * Rebuilds the enemies list by new monster instances from the factory.
+     */
+    void restoreEnemyList();
 
     /**
      * stage's stage.
