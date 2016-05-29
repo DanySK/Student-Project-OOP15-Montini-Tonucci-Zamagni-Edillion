@@ -91,7 +91,8 @@ public class StageLoopImp implements StageLoop {
 
     public void attackEffective(Entity attacker, Entity target, Skill skill) {
         int damage = skill.useSkill();
-        //riferimentoView.logStringAmbarabacciCocco(attacker.getName(), target.getName(), skill.getName(), damage);
+        riferimentoView.refreshCombatLog(attacker.getName(), target.getName(), skill.getName(), damage);
+        target.setStat(StatType.MANA, skill.getMana(), StatTime.CURRENT, ActionType.DECREASE);
         target.setStat(StatType.HP, damage, StatTime.CURRENT, ActionType.DECREASE);
     }
 
@@ -136,13 +137,16 @@ public class StageLoopImp implements StageLoop {
         
         public synchronized void run() {
             
-            if ( heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 && monsterId != -1 ) {
+            if ( heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 && 
+                    monsterId != -1 &&
+                    heroCurrent.getStat(StatType.MANA, StatTime.CURRENT) >= mossa.getMana()) {
                 
                 speedHero = (int) ((DIV_SPEED/heroCurrent.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
                 
                 attackEffective(heroCurrent, listMonster.get(monsterId), mossa);
 
                 riferimentoView.generateEnemiesPanel(listMonster);
+                riferimentoView.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
 
                 if ( Stages.isCleared(listMonster) ) {
                     heroWin();
@@ -353,7 +357,7 @@ public class StageLoopImp implements StageLoop {
     private void heroWin() {
         agent.stopCounting();
 
-        heroCurrent.setStat(StatType.EXP, stage.getReward(), StatTime.GLOBAL, ActionType.INCREASE);
+        heroCurrent.gainExp(stage.getReward());
         heroCurrent.setStat(StatType.GOLD, stage.getGoldReward(), StatTime.GLOBAL, ActionType.INCREASE);
 
         setStage();

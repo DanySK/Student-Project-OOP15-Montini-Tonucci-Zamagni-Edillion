@@ -15,7 +15,6 @@ import model.entities.Role;
 import model.stages.StageData;
 import model.stages.StageState;
 import model.stages.Stages;
-import view.CreateHeroGUI;
 import view.LoadSaveGUI;
 import view.SelezionaStageGUI;
 import view.StartGUI;
@@ -25,7 +24,6 @@ public class Game implements GameEngine{
 
     public static final String FOLDER_PATH = System.getProperty("user.home") 
         + System.getProperty("file.separator") + "rpgSave";
-    public static final int NUM_STAGE = 4;
     private static Optional<Game> singleton = Optional.empty();
     private Hero NULL;
     private Hero hero = NULL;
@@ -53,16 +51,6 @@ public class Game implements GameEngine{
         View menu = new StartGUI("Menù principale");
     }
     
-    /*
-     * NEL MENU' PRINCIPALE CI SARANNO 2 TASTI, NON UNO CON GIOCA
-     * I TASTI SARANNO:
-     * -CREA NUOVO PERSONAGGIO (chiamerà direttamente {View createPG = new CreateHeroGUI("Creazione del personaggio")} )
-     * -CONTINUA DA SALVATAGGIO (chiamerà il mio metodo(continues()) il quale gli aprira una schermata con i salvataggi 
-     *                           o per tornare al Menù principale.)
-     *          -selezionato il salvataggio mi passerà la stringa con il nome del salvataggio chiamando il mio metodo(gioca())
-     * 
-     * */
-    
     
     @Override
     public void continues() {
@@ -71,7 +59,6 @@ public class Game implements GameEngine{
         
         for (int i=0; i < existingSave.length; i++) {
             String filename = existingSave[i];
-            System.out.println(filename);
         }
         
         View choiceSave = new LoadSaveGUI("Menù principale", existingSave);
@@ -104,7 +91,6 @@ public class Game implements GameEngine{
         StageLoop stage = new StageLoopImp();
         
         stage.load(data, hero);
-        
     }
     
     @SuppressWarnings("unchecked")
