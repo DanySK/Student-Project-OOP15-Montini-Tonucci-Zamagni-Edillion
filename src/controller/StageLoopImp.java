@@ -92,7 +92,7 @@ public class StageLoopImp implements StageLoop {
     public void attackEffective(Entity attacker, Entity target, Skill skill) {
         int damage = skill.useSkill();
         riferimentoView.refreshCombatLog(attacker.getName(), target.getName(), skill.getName(), damage);
-        target.setStat(StatType.MANA, skill.getMana(), StatTime.CURRENT, ActionType.DECREASE);
+        attacker.setStat(StatType.MANA, skill.getMana(), StatTime.CURRENT, ActionType.DECREASE);
         target.setStat(StatType.HP, damage, StatTime.CURRENT, ActionType.DECREASE);
     }
 
@@ -193,6 +193,7 @@ public class StageLoopImp implements StageLoop {
                         if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) <= 0) {
                             playerLost = true;
                             agent.stopCounting();
+                            stage.restoreEnemyList();
                             riferimentoView.defeat();
                         }
                     }
@@ -253,32 +254,6 @@ public class StageLoopImp implements StageLoop {
                 } else {
                         pausa = true;
                 }
-        }
-    }
-    
-    
-    private void save(String nameSave) {
-        
-        List<Object> list = new ArrayList<>();
-        list.add(heroCurrent);
-        list.add(Stages.generateStagesData());
-        
-
-        FileOutputStream fileOutputStream = null;
-        ObjectOutputStream objectOutputStream = null;
-        
-        try {
-            fileOutputStream = new FileOutputStream(nameSave);
-            objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            
-            objectOutputStream.writeObject(list);
-            objectOutputStream.close();
-            fileOutputStream.close();
-            
-            System.out.println("Oggetto correttamente salvato su file.");
-            
-        } catch (IOException ex) {
-                ex.printStackTrace();
         }
     }
 
@@ -360,7 +335,6 @@ public class StageLoopImp implements StageLoop {
         heroCurrent.gainExp(stage.getReward());
         heroCurrent.setStat(StatType.GOLD, stage.getGoldReward(), StatTime.GLOBAL, ActionType.INCREASE);
 
-        setStage();
         heroCurrent.copyStats();
         riferimentoView.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
         save(Game.FOLDER_PATH + "/" + heroCurrent.getName() + ".dat");
@@ -371,5 +345,31 @@ public class StageLoopImp implements StageLoop {
             e.printStackTrace();
         }
         riferimentoView.victory();
+
+        stage.restoreEnemyList();
+        setStage();
+    }
+    
+    private void save(String nameSave) {
+        
+        List<Object> list = new ArrayList<>();
+        list.add(heroCurrent);
+        list.add(Stages.generateStagesData());
+        
+
+        FileOutputStream fileOutputStream = null;
+        ObjectOutputStream objectOutputStream = null;
+        
+        try {
+            fileOutputStream = new FileOutputStream(nameSave);
+            objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            
+            objectOutputStream.writeObject(list);
+            objectOutputStream.close();
+            fileOutputStream.close();
+            
+        } catch (IOException ex) {
+                ex.printStackTrace();
+        }
     }
 }

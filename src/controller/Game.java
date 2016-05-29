@@ -57,10 +57,6 @@ public class Game implements GameEngine{
         File dir = new File(FOLDER_PATH);
         String[] existingSave = dir.list();
         
-        for (int i=0; i < existingSave.length; i++) {
-            String filename = existingSave[i];
-        }
-        
         View choiceSave = new LoadSaveGUI("Menù principale", existingSave);
     }
 
