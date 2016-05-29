@@ -3,6 +3,7 @@ package model.stages;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -17,17 +18,16 @@ import model.entities.RandomName;
  * All stages data.
  */
 public enum StageData implements Stage {
-    TUTORIAL("Tutorial", MonsterTemplates.PEASANT),
-    FIRSTMISSION("First mission", MonsterTemplates.GOBLIN),
-    THECAVE("The Cave", MonsterTemplates.UOMOGATTO),
-    UNFAIR("Unfair", MonsterTemplates.PEASANT, MonsterTemplates.PEASANT);
-
+    TUTORIAL("Tutorial", MonsterTemplates.PEASANT), FIRSTMISSION("First mission", MonsterTemplates.GOBLIN), THECAVE(
+            "The Cave",
+            MonsterTemplates.UOMOGATTO), UNFAIR("Unfair", MonsterTemplates.PEASANT, MonsterTemplates.PEASANT);
 
     private final float EXP_HP_MOD = 1.5F;
     private final String name;
     private final int reward;
     private final int goldReward;
     private final MonsterTemplates[] enemies;
+    private Optional<List<Entity>> actualEnemyList = Optional.empty();
     private StageState state;
 
     StageData(final String name, final MonsterTemplates... enemyList) {
@@ -55,15 +55,21 @@ public enum StageData implements Stage {
 
     @Override
     public List<Entity> getEnemyList() {
+        if (!this.actualEnemyList.isPresent()) {
+            this.restoreEnemyList();
+        }
+        return this.actualEnemyList.get();
+    }
+
+    // @Override
+    public void restoreEnemyList() {
         List<RandomName> namePool = new ArrayList<>(Arrays.asList(RandomName.values()));
         Random rnd = new Random();
         MonsterFactory factory = new MonsterFactory();
-        return Arrays.asList(this.enemies).stream()
-                .map(e -> {
-                    String suffix = " " + namePool.remove(rnd.nextInt(namePool.size())).toString();
-                    return factory.createMonster(e, suffix);
-                })
-                .collect(Collectors.toList());
+        this.actualEnemyList = Optional.of(Arrays.asList(this.enemies).stream().map(e -> {
+            String suffix = " " + namePool.remove(rnd.nextInt(namePool.size())).toString();
+            return factory.createMonster(e, suffix);
+        }).collect(Collectors.toList()));
     }
 
     @Override
@@ -77,7 +83,7 @@ public enum StageData implements Stage {
     }
 
     @Override
-    public Stage getNext() throws  IllegalStateException {
+    public Stage getNext() throws IllegalStateException {
         if (this.ordinal() == StageData.values().length - 1) {
             throw new IllegalStateException("Last stage reached!");
         }
@@ -87,8 +93,8 @@ public enum StageData implements Stage {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        return sb.append("Name: ").append(this.name).append("\nEnemies: ").append(this.getEnemyList()).append("\nReward: ")
-                .append(this.reward).append("exp").toString();
+        return sb.append("Name: ").append(this.name).append("\nEnemies: ").append(this.getEnemyList())
+                .append("\nReward: ").append(this.reward).append("exp").toString();
     }
 
     /**
@@ -97,7 +103,9 @@ public enum StageData implements Stage {
      * @return the reward value.
      */
     private int calculateReward() {
-        return this.getEnemyList().stream().mapToInt(e -> Math.round((e.getStat(StatType.HP, StatTime.CURRENT) * EXP_HP_MOD * e.getStat(StatType.LEVEL, StatTime.CURRENT)))).sum();
+        return this.getEnemyList().stream().mapToInt(e -> Math.round(
+                (e.getStat(StatType.HP, StatTime.CURRENT) * EXP_HP_MOD * e.getStat(StatType.LEVEL, StatTime.CURRENT))))
+                .sum();
     }
 
 }

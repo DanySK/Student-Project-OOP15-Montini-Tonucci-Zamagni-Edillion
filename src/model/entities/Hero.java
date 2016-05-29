@@ -74,6 +74,14 @@ public class Hero extends BasicEntity implements Serializable {
         return this.getStat(StatType.LEVEL, StatTime.GLOBAL) * 100;
     }
 
+    /**
+     * Function that makes the hero gain a level
+     */
+    private void levelUp() {
+        //rimuovi exp
+        this.setStat(StatType.LEVEL, 1, StatTime.GLOBAL, ActionType.INCREASE);
+    }
+    
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
@@ -82,13 +90,6 @@ public class Hero extends BasicEntity implements Serializable {
                  .append("\n\tGold: ").append(this.getStat(StatType.GOLD, StatTime.GLOBAL))
                  .append("\nRole: ").append(this.role)
                  .toString();
-    }
-
-    /**
-     * Function that makes the hero gain a level
-     */
-    private void levelUp() {
-        this.setStat(StatType.LEVEL, 1, StatTime.GLOBAL, ActionType.INCREASE);
     }
 
     /**

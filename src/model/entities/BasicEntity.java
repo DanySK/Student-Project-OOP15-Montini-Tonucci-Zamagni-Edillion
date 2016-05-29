@@ -75,10 +75,10 @@ public class BasicEntity implements Entity, Serializable {
             }
         }
 
-        try { // Negative HP set to 0
+        try { // Negative HP or Mana set to 0
             statType.check(newValue);
         } catch (IllegalArgumentException e) {
-            if (statType.equals(StatType.HP) && newValue.get() <= 0) {
+            if ((statType.equals(StatType.HP) || statType.equals(StatType.MANA)) && newValue.get() <= 0) {
                 newValue = Optional.of(0);
                 action = ActionType.SET;
             } else {
@@ -296,10 +296,18 @@ public class BasicEntity implements Entity, Serializable {
         this(builder.name, builder.hp, builder.level, builder.speed, builder.mana, builder.manaRegen, builder.types);
     }
 
+    /**
+     * 
+     * eunm used to navigate trough statMap, current or global.
+     */
     public enum StatTime {
         GLOBAL, CURRENT;
     }
 
+    /**
+     * eunm used to navigate trough statMap and modify its values, set, increase or dedrease.
+     *
+     */
     public enum ActionType {
         SET, DECREASE, INCREASE;
     }

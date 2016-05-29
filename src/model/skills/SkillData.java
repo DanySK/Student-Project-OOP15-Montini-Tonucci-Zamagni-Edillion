@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public enum SkillData implements Skill {
     // Heroes                 damage - level - mod  -  mana
-    PUNCH("Punch",               3,     1,      0,      0, SkillType.BASIC),
+    PUNCH("Punch",               3,     1,      0,      5, SkillType.BASIC),
     KICK("Kick",                 5,     1,      1,      0, SkillType.MELEE),
     DHIT("Double Hit",           7,     2,      1,      0, SkillType.MELEE),
     SLAM("Slam",                 5,     2,      1,      0, SkillType.MELEE),
