@@ -12,7 +12,7 @@ public enum MonsterTemplates {
     GOBLIN("Goblin", 25, 3, 1, 20, 2, SkillType.GOBLIN, SkillType.BASIC), 
     COBOLD("Cobold", 35, 3, 4, 30, 2, SkillType.ORC, SkillType.BASIC),
     MRSKELTAL("Mr. Skeltal", 50, 5, 5, 100, 5, SkillType.BASIC, SkillType.SKULL),
-    DRAGON("Fire Mage", 80, 4 ,5, 15, 100, SkillType.FIRESPELL);
+    DRAGON("Dragon", 80, 4 ,5, 15, 100, SkillType.FIRESPELL);
     
 
     private final String name;

@@ -13,19 +13,23 @@ import java.util.stream.Collectors;
 public enum SkillData implements Skill {
     // Heroes                 damage - level - mod  -  mana
     PUNCH("Punch",               3,     1,      0,      0, SkillType.BASIC, SkillType.GOBLIN),
-    KICK("Kick",                 5,     1,      1,      3, SkillType.MELEE, SkillType.ORC),
+    KICK("Kick",                 5,     1,      1,     10, SkillType.MELEE, SkillType.ORC),
+    DART("Dart",                 4,     1,      3,      0, SkillType.ARCHER),
     DHIT("Double Hit",           7,     2,      1,      0, SkillType.MELEE),
-    FIRE("Fire",                 8,     2,      3,     10, SkillType.FIRESPELL),
-    SLAM("Slam",                10,     3,      2,      0, SkillType.MELEE),
-    FLARE("Flare",              10,     3,      3,     10, SkillType.FIRESPELL),
-    PYROBALL("Pyroball",        16,     4,      5,     18, SkillType.FIRESPELL),
-    CPUNCH("Comet Punch",       30,     4,      6,      0, SkillType.MELEE),
-    METEOR("Meteor",            42,     5,     11,     32, SkillType.BLACKSPELL, SkillType.SKULL),
-    SACREDSTOPM("Sacred Stom",  40,     5,      2,      5, SkillType.MELEE),
-    ULTIMATE("Ultimate",        56,     6,     15,     50, SkillType.FIRESPELL, SkillType.BLACKSPELL),
+    FIRE("Fire",                 8,     2,      3,     25, SkillType.FIRESPELL),
+    FROSTSHOT("Frost Shot",      6,     2,      4,     30, SkillType.ARCHER),
+    SLAM("Slam",                11,     3,      2,      0, SkillType.MELEE),
+    FLARE("Flare",              11,     3,      3,     40, SkillType.FIRESPELL),
+    FIREDART("Fire Dart",        8,     3,      6,     50, SkillType.ARCHER),
+    PYROBALL("Pyroball",        16,     4,      5,     60, SkillType.FIRESPELL),
+    CPUNCH("Comet Punch",       27,     4,      6,      0, SkillType.MELEE),
+    METEOR("Meteor",            42,     5,     11,     70, SkillType.BLACKSPELL, SkillType.SKULL),
+    CROSSBOW("Hunted Crossbow", 30,     5,     19,     72, SkillType.ARCHER),
+    SACREDSTOPM("Sacred Stomp", 40,     5,      2,      5, SkillType.MELEE),
+    ULTIMATE("Ultimate",        56,     6,     15,     100, SkillType.BASIC),
 
 
-    // Monsters           damage - level - mod
+    // Monsters basic attacks  damage - level - mod
     ROCK("Rock",                3,      1,      0,      0, SkillType.ORC, SkillType.GOBLIN),
     HIT("Hit",                  5,      2,      1,      0, SkillType.ORC, SkillType.GOBLIN, SkillType.SKULL);
 
@@ -89,7 +93,7 @@ public enum SkillData implements Skill {
             return this.damage;
         }
         Random rnd = new Random();
-        return this.damage + rnd.nextInt(this.modifier * 2) - this.modifier;
+        return this.damage + (rnd.nextInt((this.modifier * 2)+1) - this.modifier);
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  */
 public enum SkillType {
     //Heroes
-    BASIC, MELEE, FIRESPELL, WHITESPELL, DISTANCE, BLACKSPELL, 
+    BASIC, MELEE, FIRESPELL, WHITESPELL, DISTANCE, BLACKSPELL, ARCHER,
 
     //Monsters
     SKULL, ORC, GOBLIN;

@@ -2,17 +2,14 @@ package model;
 
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
 import java.util.EnumMap;
-
+import java.util.Random;
 
 import model.entities.BasicEntity.ActionType;
 import model.entities.BasicEntity.StatTime;
 
 import model.items.ItemUsable;
 import model.entities.Hero;
-import model.entities.MonsterFactory;
-import model.entities.MonsterTemplates;
 import model.entities.Role;
 import model.entities.StatType;
 import model.skills.SkillData;
@@ -57,18 +54,26 @@ public class ModelTest {
     @org.junit.Test
     public void testStage() {
        //Setting two stages' state
+       StageState[] shorterArray = new StageState[4];
        StageData.TUTORIAL.setState(StageState.DONE);
        StageData.FIRSTMISSION.setState(StageState.UNLOCKED);
        //Generate stages' actual states' map
        EnumMap<StageData, StageState> stageMap = Stages.generateStagesData();
+       for (int i = 0; i< 4; i++) { //Building an array of first 4 elements, all others are just locked
+           shorterArray[i] = (StageState) stageMap.values().toArray()[i];
+       } 
        StageState[] dataTest = {StageState.DONE, StageState.UNLOCKED, StageState.LOCKED, StageState.LOCKED};
-       assertArrayEquals(dataTest, stageMap.values().toArray());
+       assertArrayEquals(dataTest, shorterArray);
 
        //Changing two other values
        StageData.FIRSTMISSION.setState(StageState.DONE);
        StageData.THECAVE.setState(StageState.UNLOCKED);
+       StageState[] shorterArray2 = new StageState[4];
+       for (int i = 0; i< 4; i++) {
+           shorterArray2[i] = (StageState) Stages.generateStagesData().values().toArray()[i];
+       } 
        StageState[] dataTest2 = {StageState.DONE, StageState.DONE, StageState.UNLOCKED, StageState.LOCKED};
-       assertArrayEquals(dataTest2, Stages.generateStagesData().values().toArray());
+       assertArrayEquals(dataTest2, shorterArray2);
     }
 
     /**
@@ -124,14 +129,14 @@ public class ModelTest {
      */
     @org.junit.Test
     public void testSkillModifier() {
-        SkillData skill = SkillData.FLARE;
-        for (int i = 0; i < 10000; i++) {
+        Random rnd = new Random(); //Randomize the skill used for the test, every skill works
+        SkillData skill = SkillData.values()[rnd.nextInt(SkillData.values().length)];
+        for (int i = 0; i < 1000; i++) {
             int dmg = skill.useSkill();
             if (dmg > skill.getDamage() + skill.getModifier() || dmg < skill.getDamage() - skill.getModifier()) {
                 fail();
             }
         }
-
     }
 
     /**
