@@ -7,7 +7,7 @@ import model.stages.StageData;
 public interface GameEngine {
 
 
-    void gioca( String save );
+    void beginPlay(String save);
     
     void continues();
     

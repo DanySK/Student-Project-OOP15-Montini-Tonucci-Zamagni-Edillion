@@ -16,7 +16,8 @@ import model.stages.StageData;
 import model.stages.StageState;
 import model.stages.Stages;
 import view.LoadSaveGUI;
-import view.SelezionaStageGUI;
+import view.LoadSaveGUIImpl;
+import view.StageSelectionGUI;
 import view.StartGUI;
 import view.View;
 
@@ -43,7 +44,6 @@ public class Game implements GameEngine{
     
     public Game() {
         
-        //se non esiste creo la cartella per i salvataggi
         if (!(new File(FOLDER_PATH).isDirectory()) ) {
             new File(FOLDER_PATH).mkdir();
         }
@@ -57,27 +57,27 @@ public class Game implements GameEngine{
         File dir = new File(FOLDER_PATH);
         String[] existingSave = dir.list();
         
-        View choiceSave = new LoadSaveGUI("Menù principale", existingSave);
+        LoadSaveGUI choiceSave = new LoadSaveGUIImpl("Menù principale", existingSave);
     }
 
     @Override
-    public void gioca(String stringaPassata) {
+    public void beginPlay(String saveName) {
         
-        if ( stringaPassata != "" ){ //appena scelto il caricamento
-            loadSave(stringaPassata);
+        if ( saveName != "" ){ 
+            loadSave(saveName);
         } else {
-            if(StageData.TUTORIAL.getState() == StageState.LOCKED) { //prima volta
+            if(StageData.TUTORIAL.getState() == StageState.LOCKED) { 
                 StageData.TUTORIAL.setState(StageState.UNLOCKED);
             }
         }
-        View selectStage = new SelezionaStageGUI("Selezione dello stage da affrontare");
+        View selectStage = new StageSelectionGUI("Selezione dello stage da affrontare");
     }
 
     @Override
     public void buildHero(String name, Role role) {
         
         hero = new Hero.Builder().name(name).hp(20).level(1).speed(5).role(role).build();
-        gioca("");
+        beginPlay("");
     }
 
 
@@ -85,7 +85,6 @@ public class Game implements GameEngine{
     public void stageLoad(StageData data) {
         
         StageLoop stage = new StageLoopImp();
-        
         stage.load(data, hero);
     }
     

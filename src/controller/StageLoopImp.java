@@ -20,19 +20,20 @@ import model.stages.StageData;
 import model.stages.StageState;
 import model.stages.Stages;
 import view.CombatGUI;
+import view.CombatGUIImpl;
 
 public class StageLoopImp implements StageLoop {
     
-    public static final double DIV_SPEED = 30.00;
-    public static final int ATTESA_EXP = 500;
-    public static final int SPEED_THREAD = 10;
-    public static final int TIME_VIEW = 100;
-    public static final int TIME_MANA = 100;
+    private static final double DIV_SPEED = 30.00;
+    private static final int TIME_WAIT_EXP = 500;
+    private static final int SPEED_THREAD = 10;
+    private static final int TIME_VIEW = 100;
+    private static final int TIME_MANA = 100;
     private Stage stage;
     private int counter, speedHero, maxHPhero, maxMANAhero;
-    private volatile boolean pausa = true;
+    private volatile boolean pause = true;
     private Hero heroCurrent;
-    private CombatGUI riferimentoView;
+    private CombatGUI referenceCombatGUI;
     private List<Entity> listMonster;
     final Agent agent = new Agent();
     
@@ -61,7 +62,7 @@ public class StageLoopImp implements StageLoop {
             mon.start();
         }
 
-        riferimentoView = new CombatGUI( "Schermata di combattimento", this, listMonster, heroCurrent.getName(), 
+        referenceCombatGUI = new CombatGUIImpl( "Schermata di combattimento", this, listMonster, heroCurrent.getName(), 
                 hero.getStatMap(StatTime.CURRENT), heroCurrent.getAllowedSkillList());
         
         speedHero = (int) ((DIV_SPEED/heroCurrent.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
@@ -70,83 +71,38 @@ public class StageLoopImp implements StageLoop {
     }
 
     @Override
-    public void attack(Skill mossa, int monsterId) {
-        final HeroAttack hero_thread = new HeroAttack(mossa, monsterId);
+    public void attack(Skill skill, int monsterId) {
+        final HeroAttack hero_thread = new HeroAttack(skill, monsterId);
         hero_thread.start();
     }
 
 
-    private void setStage() {
-        stage.setState(StageState.DONE);
-        
-        try {
-            stage = stage.getNext();
-        } catch (IllegalStateException e) { }
-        
-        if ( stage.getState().equals(StageState.LOCKED) ) {
-            stage.setState(StageState.UNLOCKED);
-        }
-    }
-
-
-    public void attackEffective(Entity attacker, Entity target, Skill skill) {
-        int damage = skill.useSkill();
-        riferimentoView.refreshCombatLog(attacker.getName(), target.getName(), skill.getName(), damage);
-        attacker.setStat(StatType.MANA, skill.getMana(), StatTime.CURRENT, ActionType.DECREASE);
-        target.setStat(StatType.HP, damage, StatTime.CURRENT, ActionType.DECREASE);
-    }
-
-    public void pauseHero(int speed) {
-        int speedUsed = speed / TIME_VIEW;
-
-        riferimentoView.enableButtons(false);
-        
-        for( int i = TIME_VIEW ; i >= 0  ; i--) {
-            try {
-                if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0) {
-                    riferimentoView.refreshCount(i);
-                }
-                Thread.sleep(speedUsed);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        riferimentoView.enableButtons(true);
-    }
-    
-    private class WaitFirst extends Thread {
-        private int speed;
-
-        public WaitFirst(int speed) {
-            this.speed = speed;
-        }
-        
-        public synchronized void run() {
-            pauseHero(speed);
-        }
+    @Override
+    public void useItem(ItemUsable item, int targetId) {
+        final HeroUseItem hero_thread = new HeroUseItem(item, targetId);
+        hero_thread.start();
     }
     
     private class HeroAttack extends Thread {
-        private Skill mossa;
+        private Skill skill;
         private int monsterId;
 
-        public HeroAttack(Skill mossa, int monsterId) {
-            this.mossa = mossa;
+        public HeroAttack(Skill skill, int monsterId) {
+            this.skill = skill;
             this.monsterId = monsterId;
         }
         
         public synchronized void run() {
             
             if ( heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 && 
-                    monsterId != -1 &&
-                    heroCurrent.getStat(StatType.MANA, StatTime.CURRENT) >= mossa.getMana()) {
+                    heroCurrent.getStat(StatType.MANA, StatTime.CURRENT) >= skill.getMana()) {
                 
                 speedHero = (int) ((DIV_SPEED/heroCurrent.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
                 
-                attackEffective(heroCurrent, listMonster.get(monsterId), mossa);
+                attackEffective(heroCurrent, listMonster.get(monsterId), skill);
 
-                riferimentoView.generateEnemiesPanel(listMonster);
-                riferimentoView.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+                referenceCombatGUI.generateEnemiesPanel(listMonster);
+                referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
 
                 if ( Stages.isCleared(listMonster) ) {
                     heroWin();
@@ -179,26 +135,24 @@ public class StageLoopImp implements StageLoop {
                 try {
                     Thread.sleep(SPEED_THREAD);
                     
-                    if ( !pausa && colpisce() ) {
-                        
+                    if ( !pause && colpisce() ) {
                         
                         Skill skill = monster.getAllowedSkillList().stream()
-                                                    //.filter(p->p.getMana()<monster.getMana)
+                                                    //.filter(p->p.getMana()>monster.getStat(StatType.MANA, StatTime.CURRENT))
                                                     .max((p1, p2) -> Integer.compare( p1.getDamage(), p2.getDamage())).get();
                         
                         attackEffective(monster, heroCurrent, skill);
                         
-                        riferimentoView.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+                        referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
                         
                         if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) <= 0) {
                             playerLost = true;
                             agent.stopCounting();
+                            referenceCombatGUI.defeat();
                             stage.restoreEnemyList();
-                            riferimentoView.defeat();
                         }
                     }
                 } catch ( InterruptedException ex) {
-                    // interrupted: added a system.out but there are much better ways to log exceptions
                     System.out.println("Something went wrong. " + ex);
                 }
             }
@@ -215,7 +169,6 @@ public class StageLoopImp implements StageLoop {
         }
     }
     
-    
     private class Agent extends Thread {
 
         private volatile boolean stop;
@@ -224,7 +177,7 @@ public class StageLoopImp implements StageLoop {
             while (!stop) {
                 try {
                     Thread.sleep(SPEED_THREAD);
-                    if (!pausa) {
+                    if (!pause) {
                         counter += 1;
                         
                         if (counter % TIME_MANA == 0) {
@@ -235,7 +188,21 @@ public class StageLoopImp implements StageLoop {
                             } else { 
                                 heroCurrent.setStat(StatType.MANA, maxMANAhero, StatTime.CURRENT, ActionType.SET);
                             }
-                            riferimentoView.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+                            referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+                            
+                            
+                            for (Entity e: listMonster) {
+                                if(e.getStat(StatType.HP, StatTime.CURRENT) > 0) {
+                                    if ( (e.getStat(StatType.MANA, StatTime.CURRENT) + 
+                                            e.getStat(StatType.MANAREGEN, StatTime.CURRENT)) < e.getStat(StatType.MANAREGEN, StatTime.GLOBAL) ) {
+                                          e.setStat(StatType.MANA, e.getStat(StatType.MANAREGEN, StatTime.CURRENT), 
+                                                      StatTime.CURRENT, ActionType.INCREASE);
+                                    } else { 
+                                          e.setStat(StatType.MANA, e.getStat(StatType.MANAREGEN, StatTime.GLOBAL), StatTime.CURRENT, ActionType.SET);
+                                    }
+                                }
+                            }
+                            referenceCombatGUI.generateEnemiesPanel(listMonster);
                         }
                     }
                 } catch ( InterruptedException ex) {
@@ -249,19 +216,26 @@ public class StageLoopImp implements StageLoop {
         }
         
         public void pausaCounting() {
-                if (pausa == true) {
-                        pausa = false;
+                if (pause == true) {
+                        pause = false;
                 } else {
-                        pausa = true;
+                        pause = true;
                 }
         }
     }
+    
+    private class WaitFirst extends Thread {
+        private int speed;
 
-
-    @Override
-    public void useItem(ItemUsable item, int targetId) {
-        final HeroUseItem hero_thread = new HeroUseItem(item, targetId);
-        hero_thread.start();
+        public WaitFirst(int speed) {
+            this.speed = speed;
+        }
+        
+        public synchronized void run() {
+            agent.pausaCounting();
+            pauseHero(speed);
+            agent.pausaCounting();
+        }
     }
     
     private class HeroUseItem extends Thread {
@@ -274,7 +248,7 @@ public class StageLoopImp implements StageLoop {
         }
         
         public synchronized void run() {
-            riferimentoView.enableButtons(false);
+            referenceCombatGUI.enableButtons(false);
             
             if ( heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 ) {
                 switch (item.getItemType()) {
@@ -288,20 +262,20 @@ public class StageLoopImp implements StageLoop {
                         if (heroCurrent.getStat(StatType.MANA, StatTime.CURRENT) > maxMANAhero) {
                             heroCurrent.setStat(StatType.MANA, maxMANAhero, StatTime.CURRENT, ActionType.SET);
                         }
-                        riferimentoView.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+                        referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
                         
                         break;
                     case IMPERSONAL:
                         listMonster.get(targetId).setStat(item.getStatTypeInfluence(), item.getEffectiveness(), 
                                                           StatTime.CURRENT, ActionType.DECREASE);
-                        riferimentoView.generateEnemiesPanel(listMonster);
+                        referenceCombatGUI.generateEnemiesPanel(listMonster);
                         break;
                     default: 
                         for (Entity e: listMonster) {
                             e.setStat(item.getStatTypeInfluence(), item.getEffectiveness(), 
                                       StatTime.CURRENT, ActionType.DECREASE);
                         }
-                        riferimentoView.generateEnemiesPanel(listMonster);
+                        referenceCombatGUI.generateEnemiesPanel(listMonster);
                         break;
                 }
                 heroCurrent.getInventory().getBag().remove(item);
@@ -325,8 +299,45 @@ public class StageLoopImp implements StageLoop {
                     }
                 }
             }
-            riferimentoView.enableButtons(true);
+            referenceCombatGUI.enableButtons(true);
         }
+    }
+    
+    private void attackEffective(Entity attacker, Entity target, Skill skill) {
+        int damage = skill.useSkill();
+        referenceCombatGUI.refreshCombatLog(attacker.getName(), target.getName(), skill.getName(), damage);
+        attacker.setStat(StatType.MANA, skill.getMana(), StatTime.CURRENT, ActionType.DECREASE);
+        target.setStat(StatType.HP, damage, StatTime.CURRENT, ActionType.DECREASE);
+    }
+
+    private void setStage() {
+        stage.setState(StageState.DONE);
+        
+        try {
+            stage = stage.getNext();
+        } catch (IllegalStateException e) { }
+        
+        if ( stage.getState().equals(StageState.LOCKED) ) {
+            stage.setState(StageState.UNLOCKED);
+        }
+    }
+    
+    private void pauseHero(int speed) {
+        int speedUsed = speed / TIME_VIEW;
+
+        referenceCombatGUI.enableButtons(false);
+        
+        for( int i = TIME_VIEW ; i >= 0  ; i--) {
+            try {
+                if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0) {
+                    referenceCombatGUI.refreshCount(i);
+                }
+                Thread.sleep(speedUsed);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        referenceCombatGUI.enableButtons(true);
     }
     
     private void heroWin() {
@@ -336,18 +347,18 @@ public class StageLoopImp implements StageLoop {
         heroCurrent.setStat(StatType.GOLD, stage.getGoldReward(), StatTime.GLOBAL, ActionType.INCREASE);
 
         heroCurrent.copyStats();
-        riferimentoView.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+        referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
         save(Game.FOLDER_PATH + "/" + heroCurrent.getName() + ".dat");
         
         try {
-            Thread.sleep(ATTESA_EXP);
+            Thread.sleep(TIME_WAIT_EXP);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        riferimentoView.victory();
+        setStage();
+        referenceCombatGUI.victory();
 
         stage.restoreEnemyList();
-        setStage();
     }
     
     private void save(String nameSave) {
