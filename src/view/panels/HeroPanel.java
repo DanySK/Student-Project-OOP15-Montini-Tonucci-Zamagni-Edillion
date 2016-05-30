@@ -8,16 +8,20 @@ import java.awt.Insets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.JProgressBar;
 
 import model.entities.StatType;
 
+/**
+ * Panel of the hero statistics
+ */
 public class HeroPanel extends JPanel{
 
     /**
@@ -28,7 +32,13 @@ public class HeroPanel extends JPanel{
     double width = 800;
     double height = 600;
     
-    public HeroPanel(String heroName,Map<StatType, Integer> heroStats){
+    /**
+     * Constructor of the hero statistics panel
+     * @param heroName name of the current hero
+     * @param heroStats statistics of the current hero
+     * @param maxHpValue Optional that contains the max hero hp value
+     */
+    public HeroPanel(String heroName,Map<StatType, Integer> heroStats, Optional<Integer> maxHpValue){
         
         this.setLayout(new GridBagLayout());
         this.setPreferredSize(new Dimension((int)width/2,(int)height/2));
@@ -44,16 +54,24 @@ public class HeroPanel extends JPanel{
         Set<StatType> heroStatsLabelSet = heroStats.keySet();
         Collection<Integer> heroStatsFieldCollection = heroStats.values();
         List<JLabel> heroStatsLabel = heroStatsLabelSet.stream().map(String::valueOf).map(JLabel::new).collect(Collectors.toList());
-        List<JTextField> heroStatsField = heroStatsFieldCollection.stream().map(String::valueOf).map(JTextField::new).collect(Collectors.toList());
+        List<JLabel> heroStatsField = heroStatsFieldCollection.stream().map(String::valueOf).map(JLabel::new).collect(Collectors.toList());
         heroStatsLabel.forEach(b->{
             gbc.gridy++;
             this.add(b,gbc);
         });
-        gbc.gridy=0;
         gbc.gridx=1;
+        gbc.gridy=0;
         heroStatsField.forEach(b->{
             gbc.gridy++;
             this.add(b,gbc);
         });
+        
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        JProgressBar hpBar = new JProgressBar(0,maxHpValue.get());
+        hpBar.setValue(heroStats.get(StatType.HP));
+        hpBar.setStringPainted(true);
+        this.add(hpBar,gbc);
+        
     }
 }

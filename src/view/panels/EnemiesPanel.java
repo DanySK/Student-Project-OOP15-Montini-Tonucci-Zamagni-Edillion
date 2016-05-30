@@ -17,6 +17,9 @@ import model.entities.Entity;
 import model.entities.StatType;
 import model.entities.BasicEntity.StatTime;
 
+/**
+ * Panel of the enemies statistics
+ */
 public class EnemiesPanel extends JPanel {
 
     /**
@@ -27,6 +30,10 @@ public class EnemiesPanel extends JPanel {
     double width = 800;
     double height = 600;
     
+    /**
+     * 
+     * @param monsterList list of the monsters of the current stage
+     */
     public EnemiesPanel(List<Entity> monsterList){
         
         this.setLayout(new GridBagLayout());
@@ -81,7 +88,7 @@ public class EnemiesPanel extends JPanel {
         gbc.gridy = 0;
         this.add(new JLabel("HP Bar"),gbc);
         for (Entity i : monsterList){
-            JProgressBar pb = new JProgressBar(0,i.getStat(StatType.HP, StatTime.GLOBAL)); //modificare il costruttore mettendo minimo e massimo e corrente
+            JProgressBar pb = new JProgressBar(0,i.getStat(StatType.HP, StatTime.GLOBAL));
             pb.setValue(i.getStat(StatType.HP, StatTime.CURRENT));
             pb.setStringPainted(true);
             gbc.gridy++;
