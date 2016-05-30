@@ -75,9 +75,15 @@ public class ModelTest {
      * Testing providers.
      */
     @org.junit.Test
-    public void testProvider() {
-        MonsterFactory factory = new MonsterFactory();
-        //assertEquals(Arrays.asList(factory.createMonster(MonsterTemplates.PEASANT)), StageData.TUTORIAL.getEnemyList());
+    public void testLevelUp() {
+        Hero hero = new Hero.Builder().name("Level Me!").role(Role.WARRIOR).build();
+        hero.gainExp(150);
+        assertEquals(50, hero.getStat(StatType.EXP, StatTime.GLOBAL)); //levelup and exp -100
+        hero.gainExp(200);
+        assertEquals(3, hero.getStat(StatType.LEVEL, StatTime.GLOBAL));
+        hero.gainExp(301);
+        assertEquals(4, hero.getStat(StatType.LEVEL, StatTime.GLOBAL));
+        assertEquals(51, hero.getStat(StatType.EXP, StatTime.GLOBAL));
     }
 
     /**

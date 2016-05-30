@@ -18,6 +18,9 @@ public class Hero extends BasicEntity implements Serializable {
      * 
      */
     private static final long serialVersionUID = 5584220020125287376L;
+    private static final int HP_INCREASE_FACTOR = 15;
+    private static final int MANA_INCREASE_FACTOR = 4;
+    private static final int MANAREGEN_INCREASE_FACTOR = 1;
 
     private final Role role;
 
@@ -78,8 +81,11 @@ public class Hero extends BasicEntity implements Serializable {
      * Function that makes the hero gain a level
      */
     private void levelUp() {
-        //rimuovi exp
-        this.setStat(StatType.LEVEL, 1, StatTime.GLOBAL, ActionType.INCREASE);
+        this.setStat(StatType.EXP, this.expToLevelUp(), StatTime.GLOBAL, ActionType.DECREASE);
+        int newLevel = this.setStat(StatType.LEVEL, 1, StatTime.GLOBAL, ActionType.INCREASE);
+        this.setStat(StatType.HP, newLevel * Hero.HP_INCREASE_FACTOR, StatTime.GLOBAL, ActionType.INCREASE);
+        this.setStat(StatType.MANA, newLevel * Hero.MANA_INCREASE_FACTOR, StatTime.GLOBAL, ActionType.INCREASE);
+        this.setStat(StatType.MANAREGEN, newLevel * Hero.MANAREGEN_INCREASE_FACTOR, StatTime.GLOBAL, ActionType.INCREASE);
     }
     
     @Override

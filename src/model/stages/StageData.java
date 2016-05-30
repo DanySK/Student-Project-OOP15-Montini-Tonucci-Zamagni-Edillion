@@ -18,9 +18,19 @@ import model.entities.RandomName;
  * All stages data.
  */
 public enum StageData implements Stage {
-    TUTORIAL("Tutorial", MonsterTemplates.PEASANT), FIRSTMISSION("First mission", MonsterTemplates.GOBLIN), THECAVE(
-            "The Cave",
-            MonsterTemplates.UOMOGATTO), UNFAIR("Unfair", MonsterTemplates.PEASANT, MonsterTemplates.PEASANT);
+    TUTORIAL("Tutorial", MonsterTemplates.PEASANT),
+    FIRSTMISSION("First mission", MonsterTemplates.RAT),
+    THECAVE("The Cave", MonsterTemplates.GOBLIN),
+    UNFAIR("Unfair", MonsterTemplates.GOBLIN, MonsterTemplates.PEASANT),
+    THECASTLE1("The Castle (part 1)", MonsterTemplates.MRSKELTAL),
+    THECASTLE2("The Castle (part 2)", MonsterTemplates.MRSKELTAL, MonsterTemplates.RAT),
+    MARSH("Marsh", MonsterTemplates.RAT, MonsterTemplates.GOBLIN, MonsterTemplates.COBOLD),
+    RUIN("Ruin", MonsterTemplates.PEASANT, MonsterTemplates.MRSKELTAL, MonsterTemplates.COBOLD),
+    DRAGONQUEST("Dragon Quest", MonsterTemplates.DRAGON),
+    PLATOON("Platoon", MonsterTemplates.MRSKELTAL, MonsterTemplates.COBOLD, MonsterTemplates.RAT),
+    DRAGONTWIN("Twin Dragons", MonsterTemplates.DRAGON, MonsterTemplates.DRAGON),
+    DRAGONTRIO("Dragon Trio", MonsterTemplates.DRAGON, MonsterTemplates.DRAGON, MonsterTemplates.DRAGON);
+    
 
     private final float EXP_HP_MOD = 1.5F;
     private final String name;
@@ -34,7 +44,7 @@ public enum StageData implements Stage {
         this.name = name;
         this.enemies = enemyList;
         this.reward = this.calculateReward();
-        this.goldReward = this.ordinal() * 120;
+        this.goldReward = Math.round(this.calculateReward() / 2);
         this.state = StageState.LOCKED;
     }
 
@@ -61,7 +71,7 @@ public enum StageData implements Stage {
         return this.actualEnemyList.get();
     }
 
-    // @Override
+    @Override
     public void restoreEnemyList() {
         List<RandomName> namePool = new ArrayList<>(Arrays.asList(RandomName.values()));
         Random rnd = new Random();
@@ -103,9 +113,9 @@ public enum StageData implements Stage {
      * @return the reward value.
      */
     private int calculateReward() {
-        return this.getEnemyList().stream().mapToInt(e -> Math.round(
-                (e.getStat(StatType.HP, StatTime.CURRENT) * EXP_HP_MOD * e.getStat(StatType.LEVEL, StatTime.CURRENT))))
-                .sum();
+        return this.ordinal() * 10 + 
+                this.getEnemyList().stream()
+                .mapToInt(e -> e.getStat(StatType.HP, StatTime.GLOBAL)).sum() * 3;
     }
 
 }

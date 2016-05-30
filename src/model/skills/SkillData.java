@@ -12,14 +12,17 @@ import java.util.stream.Collectors;
  */
 public enum SkillData implements Skill {
     // Heroes                 damage - level - mod  -  mana
-    PUNCH("Punch",               3,     1,      0,      5, SkillType.BASIC),
-    KICK("Kick",                 5,     1,      1,      0, SkillType.MELEE),
+    PUNCH("Punch",               3,     1,      0,      0, SkillType.BASIC, SkillType.GOBLIN),
+    KICK("Kick",                 5,     1,      1,      3, SkillType.MELEE, SkillType.ORC),
     DHIT("Double Hit",           7,     2,      1,      0, SkillType.MELEE),
-    SLAM("Slam",                 5,     2,      1,      0, SkillType.MELEE),
-    FLARE("Flare",              10,     2,      3,     10, SkillType.FIRESPELL),
-    PYROBALL("Pyroball",        16,     3,      5,     18, SkillType.FIRESPELL),
+    FIRE("Fire",                 8,     2,      3,     10, SkillType.FIRESPELL),
+    SLAM("Slam",                10,     3,      2,      0, SkillType.MELEE),
+    FLARE("Flare",              10,     3,      3,     10, SkillType.FIRESPELL),
+    PYROBALL("Pyroball",        16,     4,      5,     18, SkillType.FIRESPELL),
     CPUNCH("Comet Punch",       30,     4,      6,      0, SkillType.MELEE),
-    METEOR("Meteor",            50,     5,     20,     32, SkillType.BLACKSPELL),
+    METEOR("Meteor",            42,     5,     11,     32, SkillType.BLACKSPELL, SkillType.SKULL),
+    SACREDSTOPM("Sacred Stom",  40,     5,      2,      5, SkillType.MELEE),
+    ULTIMATE("Ultimate",        56,     6,     15,     50, SkillType.FIRESPELL, SkillType.BLACKSPELL),
 
 
     // Monsters           damage - level - mod
