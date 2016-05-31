@@ -47,7 +47,7 @@ public class Game implements GameEngine{
             new File(FOLDER_PATH).mkdir();
         }
         
-        new StartGUI("Menù principale");
+        new StartGUI("Main Menù");
     }
     
     
@@ -57,7 +57,7 @@ public class Game implements GameEngine{
         String[] existingSave = dir.list();
         
         if ( existingSave.length != 0 ) {
-            new LoadSaveGUIImpl("Menù principale", existingSave);
+            new LoadSaveGUIImpl("Savegame Loading", existingSave);
         } else {
             new HeroCreationGUI("Hero Creation");
         }
@@ -73,7 +73,7 @@ public class Game implements GameEngine{
                 StageData.TUTORIAL.setState(StageState.UNLOCKED);
             }
         }
-        new StageSelectionGUI("Selezione dello stage da affrontare");
+        new StageSelectionGUI("Select the stage you want to face");
     }
 
     @Override

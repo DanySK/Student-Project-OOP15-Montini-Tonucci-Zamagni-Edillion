@@ -1,4 +1,4 @@
-package view.panels;
+package view.combat.panels;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -27,8 +27,8 @@ public class EnemiesPanel extends JPanel {
      */
     private static final long serialVersionUID = -8397873417899636998L;
     
-    double width = 800;
-    double height = 600;
+    private final double width = 800;
+    private final double height = 600;
     
     /**
      * 

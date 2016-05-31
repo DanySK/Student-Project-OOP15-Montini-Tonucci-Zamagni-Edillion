@@ -1,4 +1,4 @@
-package view.panels;
+package view.combat.panels;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -29,8 +29,8 @@ public class HeroPanel extends JPanel{
      */
     private static final long serialVersionUID = 3539826908199528665L;
     
-    double width = 800;
-    double height = 600;
+    private final double width = 800;
+    private final double height = 600;
     
     /**
      * Constructor of the hero statistics panel
@@ -72,6 +72,12 @@ public class HeroPanel extends JPanel{
         hpBar.setValue(heroStats.get(StatType.HP));
         hpBar.setStringPainted(true);
         this.add(hpBar,gbc);
+        
+        gbc.gridy = 6;
+        JProgressBar expBar = new JProgressBar(0,heroStats.get(StatType.LEVEL)*100);
+        expBar.setValue(heroStats.get(StatType.EXP));
+        expBar.setStringPainted(true);
+        this.add(expBar,gbc);
         
     }
 }

@@ -35,12 +35,11 @@ public class LoadSaveGUIImpl extends JFrame implements LoadSaveGUI {
         JLabel loadSavelbl = new JLabel("What savegame do you want to load?");
         for (int i = 0; i < existingSave.length; i++){
             existingSave[i] = existingSave[i].substring(0, (existingSave[i].length())-4);
-            System.out.println(existingSave[i]);
         }
         JComboBox<String> loadSaveCB = new JComboBox<>(existingSave);
         JButton loadSaveButton = new JButton("Load");
         loadSaveButton.addActionListener(e -> {
-            Game.getInstance().gioca((String)loadSaveCB.getSelectedItem() + ".dat");
+            Game.getInstance().beginPlay((String)loadSaveCB.getSelectedItem() + ".dat");
             this.setVisible(false);
         });
         

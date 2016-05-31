@@ -20,8 +20,8 @@ import model.stages.Stage;
 import model.stages.StageData;
 import model.stages.StageState;
 import model.stages.Stages;
-import view.CombatGUI;
-import view.CombatGUIImpl;
+import view.combat.CombatGUI;
+import view.combat.CombatGUIImpl;
 
 public class StageLoopImp implements StageLoop {
     
@@ -34,7 +34,7 @@ public class StageLoopImp implements StageLoop {
     private int counter, speedHero, maxHPhero, maxMANAhero;
     private volatile boolean pause = true;
     private Hero heroCurrent;
-    private CombatGUI referenceCombatGUI;
+    private CombatGUI combatGUIReference;
     private List<Entity> listMonster;
     final Agent agent = new Agent();
     
@@ -63,7 +63,7 @@ public class StageLoopImp implements StageLoop {
             mon.start();
         }
 
-        referenceCombatGUI = new CombatGUIImpl( "Schermata di combattimento", this, listMonster, heroCurrent.getName(), 
+        combatGUIReference = new CombatGUIImpl( stage.getName(), this, listMonster, heroCurrent.getName(), 
                 hero.getStatMap(StatTime.CURRENT), heroCurrent.getAllowedSkillList());
         
         speedHero = (int) ((DIV_SPEED/heroCurrent.getStat(StatType.SPEED, StatTime.CURRENT)   )*1000);
@@ -105,8 +105,8 @@ public class StageLoopImp implements StageLoop {
                 
                 attackEffective(heroCurrent, listMonster.get(monsterId), skill);
 
-                referenceCombatGUI.generateEnemiesPanel(listMonster);
-                referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+                combatGUIReference.generateEnemiesPanel(listMonster);
+                combatGUIReference.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
 
                 if ( Stages.isCleared(listMonster) ) {
                     heroWin();
@@ -150,12 +150,12 @@ public class StageLoopImp implements StageLoop {
                         
                         attackEffective(monster, heroCurrent, skill);
                         
-                        referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+                        combatGUIReference.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
                         
                         if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) <= 0) {
                             playerLost = true;
                             agent.stopCounting();
-                            referenceCombatGUI.defeat();
+                            combatGUIReference.defeat();
                             stage.restoreEnemyList();
                         }
                     }
@@ -198,7 +198,7 @@ public class StageLoopImp implements StageLoop {
                             } else { 
                                 heroCurrent.setStat(StatType.MANA, maxMANAhero, StatTime.CURRENT, ActionType.SET);
                             }
-                            referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+                            combatGUIReference.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
                             
                             
                             for (Entity e: listMonster) {
@@ -212,7 +212,7 @@ public class StageLoopImp implements StageLoop {
                                     }
                                 }
                             }
-                            referenceCombatGUI.generateEnemiesPanel(listMonster);
+                            combatGUIReference.generateEnemiesPanel(listMonster);
                         }
                     }
                 } catch ( InterruptedException ex) {
@@ -264,7 +264,7 @@ public class StageLoopImp implements StageLoop {
         }
         
         public synchronized void run() {
-            referenceCombatGUI.enableButtons(false);
+            combatGUIReference.enableButtons(false);
             
             if ( heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0 ) {
                 switch (item.getItemType()) {
@@ -278,20 +278,20 @@ public class StageLoopImp implements StageLoop {
                         if (heroCurrent.getStat(StatType.MANA, StatTime.CURRENT) > maxMANAhero) {
                             heroCurrent.setStat(StatType.MANA, maxMANAhero, StatTime.CURRENT, ActionType.SET);
                         }
-                        referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
+                        combatGUIReference.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
                         
                         break;
                     case IMPERSONAL:
                         listMonster.get(targetId).setStat(item.getStatTypeInfluence(), item.getEffectiveness(), 
                                                           StatTime.CURRENT, ActionType.DECREASE);
-                        referenceCombatGUI.generateEnemiesPanel(listMonster);
+                        combatGUIReference.generateEnemiesPanel(listMonster);
                         break;
                     default: 
                         for (Entity e: listMonster) {
                             e.setStat(item.getStatTypeInfluence(), item.getEffectiveness(), 
                                       StatTime.CURRENT, ActionType.DECREASE);
                         }
-                        referenceCombatGUI.generateEnemiesPanel(listMonster);
+                        combatGUIReference.generateEnemiesPanel(listMonster);
                         break;
                 }
                 heroCurrent.getInventory().getBag().remove(item);
@@ -315,7 +315,7 @@ public class StageLoopImp implements StageLoop {
                     }
                 }
             }
-            referenceCombatGUI.enableButtons(true);
+            combatGUIReference.enableButtons(true);
         }
     }
     
@@ -328,7 +328,7 @@ public class StageLoopImp implements StageLoop {
      */
     private void attackEffective(Entity attacker, Entity target, Skill skill) {
         int damage = skill.useSkill();
-        referenceCombatGUI.refreshCombatLog(attacker.getName(), target.getName(), skill.getName(), damage);
+        combatGUIReference.refreshCombatLog(attacker.getName(), target.getName(), skill.getName(), damage);
         attacker.setStat(StatType.MANA, skill.getMana(), StatTime.CURRENT, ActionType.DECREASE);
         target.setStat(StatType.HP, damage, StatTime.CURRENT, ActionType.DECREASE);
     }
@@ -352,19 +352,19 @@ public class StageLoopImp implements StageLoop {
     private void pauseHero(int speed) {
         int speedUsed = speed / TIME_VIEW;
 
-        referenceCombatGUI.enableButtons(false);
+        combatGUIReference.enableButtons(false);
         
         for( int i = TIME_VIEW ; i >= 0  ; i--) {
             try {
                 if (heroCurrent.getStat(StatType.HP, StatTime.CURRENT) > 0) {
-                    referenceCombatGUI.refreshCount(i);
+                    combatGUIReference.refreshCount(i);
                 }
                 Thread.sleep(speedUsed);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        referenceCombatGUI.enableButtons(true);
+        combatGUIReference.enableButtons(true);
     }
     
     /**
@@ -377,8 +377,7 @@ public class StageLoopImp implements StageLoop {
         heroCurrent.setStat(StatType.GOLD, stage.getGoldReward(), StatTime.GLOBAL, ActionType.INCREASE);
 
         heroCurrent.copyStats();
-        referenceCombatGUI.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
-        save(Game.FOLDER_PATH + "/" + heroCurrent.getName() + ".dat");
+        combatGUIReference.generateHeroPanel(heroCurrent.getName(),heroCurrent.getStatMap(StatTime.CURRENT));
         
         try {
             Thread.sleep(TIME_WAIT_EXP);
@@ -386,7 +385,8 @@ public class StageLoopImp implements StageLoop {
             e.printStackTrace();
         }
         setStage();
-        referenceCombatGUI.victory(stage.getReward(), stage.getGoldReward());
+        save(Game.FOLDER_PATH + "/" + heroCurrent.getName() + ".dat");
+        combatGUIReference.victory(stage.getReward(), stage.getGoldReward());
 
         stage.restoreEnemyList();
     }

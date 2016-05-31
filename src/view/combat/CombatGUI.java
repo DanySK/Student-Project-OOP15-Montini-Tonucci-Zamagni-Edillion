@@ -1,4 +1,4 @@
-package view;
+package view.combat;
 
 import java.util.List;
 import java.util.Map;
@@ -25,8 +25,10 @@ public interface CombatGUI {
     
     /**
      * Shows the message of victory and sends the player back to StageSelectionGUI
+     * @param exp experience gained after the stage
+     * @param gold gold gained after the stage
      */
-    void victory();
+    void victory(int exp, int gold);
     
     /**
      * Shows the message of defeat and sends the player back to StageSelectionGUI

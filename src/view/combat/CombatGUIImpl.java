@@ -1,4 +1,4 @@
-package view;
+package view.combat;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -23,8 +23,9 @@ import controller.StageLoopImp;
 import model.entities.Entity;
 import model.entities.StatType;
 import model.skills.Skill;
-import view.panels.EnemiesPanel;
-import view.panels.HeroPanel;
+import view.StageSelectionGUI;
+import view.combat.panels.EnemiesPanel;
+import view.combat.panels.HeroPanel;
 
 /**
  * 
@@ -39,15 +40,15 @@ public class CombatGUIImpl extends JFrame implements CombatGUI {
      */
     private static final long serialVersionUID = -5474755205851269039L;
 
-    List<JButton> attackButtonList = new ArrayList<>();
-    JPanel northernPanel = new JPanel(new BorderLayout());
-    JPanel southernPanel = new JPanel(new BorderLayout());
-    JPanel southernWesternNorthernPanel = new JPanel(new FlowLayout());
-    JPanel southernWesternSouthernPanel = new JPanel(new BorderLayout());
-    JProgressBar turnProgressBar = new JProgressBar();
-    JLabel turnlbl = new JLabel(String.valueOf(100));
-    JTextArea log = new JTextArea();
-    Optional<Integer> maxHpValue = Optional.empty();
+    private final List<JButton> attackButtonList = new ArrayList<>();
+    private final JPanel northernPanel = new JPanel(new BorderLayout());
+    private final JPanel southernPanel = new JPanel(new BorderLayout());
+    private final JPanel southernWesternNorthernPanel = new JPanel(new FlowLayout());
+    private final JPanel southernWesternSouthernPanel = new JPanel(new BorderLayout());
+    private final JProgressBar turnProgressBar = new JProgressBar();
+    private final JLabel turnlbl = new JLabel(String.valueOf(100));
+    private final JTextArea log = new JTextArea();
+    private Optional<Integer> maxHpValue = Optional.empty();
     
     /**
      * Constructor of the CombatGUI
@@ -143,15 +144,15 @@ public class CombatGUIImpl extends JFrame implements CombatGUI {
     }
     
     @Override
-    public void victory() {
-        JOptionPane.showMessageDialog(this, "Congratulations");
+    public void victory(int exp, int gold) {
+        JOptionPane.showMessageDialog(this, "Congratulations, you have earned " + exp + " experience and " + gold + " gold.");
         this.setVisible(false);
         new StageSelectionGUI("Select the stage you want to face");
     }
     
     @Override
     public void defeat() {
-        JOptionPane.showMessageDialog(this, "So bad");
+        JOptionPane.showMessageDialog(this, "You failed the stage.");
         this.setVisible(false);
         new StageSelectionGUI("Select the stage you want to face");
     }
