@@ -15,6 +15,7 @@ import model.items.ItemUsable;
 import model.entities.BasicEntity.ActionType;
 import model.entities.BasicEntity.StatTime;
 import model.skills.Skill;
+import model.skills.SkillData;
 import model.stages.Stage;
 import model.stages.StageData;
 import model.stages.StageState;
@@ -28,7 +29,7 @@ public class StageLoopImp implements StageLoop {
     private static final int TIME_WAIT_EXP = 500;
     private static final int SPEED_THREAD = 10;
     private static final int TIME_VIEW = 100;
-    private static final int TIME_MANA = 100;
+    private static final int TIME_MANA = 200;
     private Stage stage;
     private int counter, speedHero, maxHPhero, maxMANAhero;
     private volatile boolean pause = true;
@@ -83,6 +84,9 @@ public class StageLoopImp implements StageLoop {
         hero_thread.start();
     }
     
+    /**
+     * Thread for the hero's attack management.
+     */
     private class HeroAttack extends Thread {
         private Skill skill;
         private int monsterId;
@@ -117,6 +121,9 @@ public class StageLoopImp implements StageLoop {
         }
     }
     
+    /**
+     * Thread for the monster's attack management.
+     */
     private class Opponent extends Thread {
         
         private Entity monster;
@@ -135,11 +142,11 @@ public class StageLoopImp implements StageLoop {
                 try {
                     Thread.sleep(SPEED_THREAD);
                     
-                    if ( !pause && colpisce() ) {
+                    if ( !pause && affect() ) {
                         
                         Skill skill = monster.getAllowedSkillList().stream()
-                                                    //.filter(p->p.getMana()>monster.getStat(StatType.MANA, StatTime.CURRENT))
-                                                    .max((p1, p2) -> Integer.compare( p1.getDamage(), p2.getDamage())).get();
+                                                    .filter(p->p.getMana() <= monster.getStat(StatType.MANA, StatTime.CURRENT))
+                                                    .max((p1, p2) -> Integer.compare( p1.getDamage(), p2.getDamage())).orElse(SkillData.PUNCH);
                         
                         attackEffective(monster, heroCurrent, skill);
                         
@@ -158,7 +165,7 @@ public class StageLoopImp implements StageLoop {
             }
         }
         
-        private synchronized boolean colpisce() {
+        private synchronized boolean affect() {
             if( counter % speed == 0 ) {
                 if (evit_repit != counter) {
                     evit_repit = counter;
@@ -168,9 +175,11 @@ public class StageLoopImp implements StageLoop {
             return false;
         }
     }
-    
-    private class Agent extends Thread {
 
+    /**
+     * Thread for the time management of the opponents and management mana.
+     */
+    private class Agent extends Thread {
         private volatile boolean stop;
 
         public synchronized void run() {
@@ -181,6 +190,7 @@ public class StageLoopImp implements StageLoop {
                         counter += 1;
                         
                         if (counter % TIME_MANA == 0) {
+                            
                             if ( (heroCurrent.getStat(StatType.MANA, StatTime.CURRENT) + 
                                   heroCurrent.getStat(StatType.MANAREGEN, StatTime.CURRENT)) < maxMANAhero ) {
                                 heroCurrent.setStat(StatType.MANA, heroCurrent.getStat(StatType.MANAREGEN, StatTime.CURRENT), 
@@ -194,11 +204,11 @@ public class StageLoopImp implements StageLoop {
                             for (Entity e: listMonster) {
                                 if(e.getStat(StatType.HP, StatTime.CURRENT) > 0) {
                                     if ( (e.getStat(StatType.MANA, StatTime.CURRENT) + 
-                                            e.getStat(StatType.MANAREGEN, StatTime.CURRENT)) < e.getStat(StatType.MANAREGEN, StatTime.GLOBAL) ) {
+                                            e.getStat(StatType.MANAREGEN, StatTime.CURRENT)) < e.getStat(StatType.MANA, StatTime.GLOBAL) ) {
                                           e.setStat(StatType.MANA, e.getStat(StatType.MANAREGEN, StatTime.CURRENT), 
                                                       StatTime.CURRENT, ActionType.INCREASE);
                                     } else { 
-                                          e.setStat(StatType.MANA, e.getStat(StatType.MANAREGEN, StatTime.GLOBAL), StatTime.CURRENT, ActionType.SET);
+                                          e.setStat(StatType.MANA, e.getStat(StatType.MANA, StatTime.GLOBAL), StatTime.CURRENT, ActionType.SET);
                                     }
                                 }
                             }
@@ -223,7 +233,10 @@ public class StageLoopImp implements StageLoop {
                 }
         }
     }
-    
+
+    /**
+     * Thread for the first hero waiting.
+     */
     private class WaitFirst extends Thread {
         private int speed;
 
@@ -238,6 +251,9 @@ public class StageLoopImp implements StageLoop {
         }
     }
     
+    /**
+     * Thread for the management of the hero items.
+     */
     private class HeroUseItem extends Thread {
         private ItemUsable item;
         private int targetId;
@@ -303,25 +319,36 @@ public class StageLoopImp implements StageLoop {
         }
     }
     
+    /**
+     * Method for the attack.
+     * 
+     * @param attacker
+     * @param target
+     * @param skill
+     */
     private void attackEffective(Entity attacker, Entity target, Skill skill) {
         int damage = skill.useSkill();
         referenceCombatGUI.refreshCombatLog(attacker.getName(), target.getName(), skill.getName(), damage);
         attacker.setStat(StatType.MANA, skill.getMana(), StatTime.CURRENT, ActionType.DECREASE);
         target.setStat(StatType.HP, damage, StatTime.CURRENT, ActionType.DECREASE);
     }
-
+    
+    /**
+     * Method for setting the next stage.
+     */
     private void setStage() {
         stage.setState(StageState.DONE);
-        
         try {
-            stage = stage.getNext();
+            Stage stage2 = stage.getNext();
+            if ( stage2.getState().equals(StageState.LOCKED) ) {
+                stage2.setState(StageState.UNLOCKED);
+            }
         } catch (IllegalStateException e) { }
-        
-        if ( stage.getState().equals(StageState.LOCKED) ) {
-            stage.setState(StageState.UNLOCKED);
-        }
     }
     
+    /**
+     * Method for the pause and update the remaining time.
+     */   
     private void pauseHero(int speed) {
         int speedUsed = speed / TIME_VIEW;
 
@@ -340,6 +367,9 @@ public class StageLoopImp implements StageLoop {
         referenceCombatGUI.enableButtons(true);
     }
     
+    /**
+     * Method to set everything caused to victory.
+     */     
     private void heroWin() {
         agent.stopCounting();
 
@@ -356,11 +386,14 @@ public class StageLoopImp implements StageLoop {
             e.printStackTrace();
         }
         setStage();
-        referenceCombatGUI.victory();
+        referenceCombatGUI.victory(stage.getReward(), stage.getGoldReward());
 
         stage.restoreEnemyList();
     }
-    
+
+    /**
+     * Method to save the current state of the game.
+     */ 
     private void save(String nameSave) {
         
         List<Object> list = new ArrayList<>();

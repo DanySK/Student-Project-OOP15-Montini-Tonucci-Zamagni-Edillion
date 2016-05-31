@@ -15,16 +15,15 @@ import model.entities.Role;
 import model.stages.StageData;
 import model.stages.StageState;
 import model.stages.Stages;
-import view.LoadSaveGUI;
+import view.HeroCreationGUI;
 import view.LoadSaveGUIImpl;
 import view.StageSelectionGUI;
 import view.StartGUI;
-import view.View;
 
 public class Game implements GameEngine{
 
     public static final String FOLDER_PATH = System.getProperty("user.home") 
-        + System.getProperty("file.separator") + "rpgSave";
+        + System.getProperty("file.separator") + "Edillion";
     private static Optional<Game> singleton = Optional.empty();
     private Hero NULL;
     private Hero hero = NULL;
@@ -48,7 +47,7 @@ public class Game implements GameEngine{
             new File(FOLDER_PATH).mkdir();
         }
         
-        View menu = new StartGUI("Menù principale");
+        new StartGUI("Menù principale");
     }
     
     
@@ -57,7 +56,11 @@ public class Game implements GameEngine{
         File dir = new File(FOLDER_PATH);
         String[] existingSave = dir.list();
         
-        LoadSaveGUI choiceSave = new LoadSaveGUIImpl("Menù principale", existingSave);
+        if ( existingSave.length != 0 ) {
+            new LoadSaveGUIImpl("Menù principale", existingSave);
+        } else {
+            new HeroCreationGUI("Hero Creation");
+        }
     }
 
     @Override
@@ -70,7 +73,7 @@ public class Game implements GameEngine{
                 StageData.TUTORIAL.setState(StageState.UNLOCKED);
             }
         }
-        View selectStage = new StageSelectionGUI("Selezione dello stage da affrontare");
+        new StageSelectionGUI("Selezione dello stage da affrontare");
     }
 
     @Override
@@ -88,6 +91,12 @@ public class Game implements GameEngine{
         stage.load(data, hero);
     }
     
+    /**
+     * Charge and set the save
+     * 
+     * @param fileSelect
+     *            name of the file you want to upload
+     */
     @SuppressWarnings("unchecked")
     private void loadSave(String fileSelect) {
         
