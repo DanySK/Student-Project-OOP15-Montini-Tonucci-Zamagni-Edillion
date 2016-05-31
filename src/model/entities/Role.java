@@ -13,7 +13,7 @@ public enum Role {
     WARRIOR("Warrior", SkillType.BASIC, SkillType.MELEE),
     ARCHER("Archer", SkillType.BASIC, SkillType.DISTANCE),
     BLACKMAGE("Black Mage", SkillType.BASIC, SkillType.FIRESPELL),
-    REDMAGE("Red Mage", SkillType.FIRESPELL, SkillType.WHITESPELL);
+    REDMAGE("Red Mage", SkillType.BASIC, SkillType.FIRESPELL, SkillType.WHITESPELL);
 
     private final String name;
     private SkillType[] type;

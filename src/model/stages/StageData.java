@@ -31,8 +31,6 @@ public enum StageData implements Stage {
     DRAGONTWIN("Twin Dragons", MonsterTemplates.DRAGON, MonsterTemplates.DRAGON),
     DRAGONTRIO("Dragon Trio", MonsterTemplates.DRAGON, MonsterTemplates.DRAGON, MonsterTemplates.DRAGON);
     
-
-    private final float EXP_HP_MOD = 1.5F;
     private final String name;
     private final int reward;
     private final int goldReward;

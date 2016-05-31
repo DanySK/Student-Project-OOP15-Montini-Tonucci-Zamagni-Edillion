@@ -2,9 +2,7 @@ package model.stages;
 
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import model.entities.BasicEntity.StatTime;
 import model.entities.Entity;

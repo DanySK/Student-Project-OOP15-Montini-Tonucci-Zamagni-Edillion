@@ -93,7 +93,7 @@ public enum SkillData implements Skill {
             return this.damage;
         }
         Random rnd = new Random();
-        return this.damage + (rnd.nextInt((this.modifier * 2)+1) - this.modifier);
+        return this.damage + (rnd.nextInt((this.modifier * 2) + 1) - this.modifier);
     }
 
     @Override

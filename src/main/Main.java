@@ -2,9 +2,10 @@ package main;
 
 import controller.Game;
 
-public class main {
+public class Main {
 
     /**
+     * Main class to launch game's controller.
      * @param args
      *            ignored.
      */

@@ -12,7 +12,7 @@ import model.items.Usable;
 /**
  * Main hero class.
  */
-public class Hero extends BasicEntity implements Serializable {
+public final class Hero extends BasicEntity implements Serializable {
 
     /**
      * 
@@ -87,7 +87,7 @@ public class Hero extends BasicEntity implements Serializable {
         this.setStat(StatType.MANA, newLevel * Hero.MANA_INCREASE_FACTOR, StatTime.GLOBAL, ActionType.INCREASE);
         this.setStat(StatType.MANAREGEN, newLevel * Hero.MANAREGEN_INCREASE_FACTOR, StatTime.GLOBAL, ActionType.INCREASE);
     }
-    
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();

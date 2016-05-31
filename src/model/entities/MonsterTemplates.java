@@ -7,12 +7,12 @@ import model.skills.SkillType;
  */
 public enum MonsterTemplates {
     // name, hp, speed, level, mana, manaRegen, assign
-    PEASANT("Angry Peasant", 5, 2, 1, 0, 0, SkillType.BASIC),
-    RAT("Huge Rat", 15, 2, 1, 0, 0, SkillType.BASIC),
-    GOBLIN("Goblin", 25, 3, 1, 20, 2, SkillType.GOBLIN, SkillType.BASIC), 
-    COBOLD("Cobold", 35, 3, 4, 30, 2, SkillType.ORC, SkillType.BASIC),
+    PEASANT("Angry Peasant", 5, 3, 1, 0, 0, SkillType.BASIC),
+    RAT("Huge Rat", 15, 4, 1, 0, 0, SkillType.BASIC),
+    GOBLIN("Goblin", 25, 5, 1, 20, 2, SkillType.GOBLIN, SkillType.BASIC), 
+    COBOLD("Cobold", 35, 4, 4, 30, 2, SkillType.ORC, SkillType.BASIC),
     MRSKELTAL("Mr. Skeltal", 50, 5, 5, 100, 5, SkillType.BASIC, SkillType.SKULL),
-    DRAGON("Dragon", 80, 4 ,5, 15, 100, SkillType.FIRESPELL);
+    DRAGON("Dragon", 80, 6, 5, 15, 100, SkillType.FIRESPELL);
     
 
     private final String name;

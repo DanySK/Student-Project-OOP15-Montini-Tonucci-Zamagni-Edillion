@@ -118,6 +118,17 @@ public class BasicEntity implements Entity, Serializable {
 
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((currStats == null) ? 0 : currStats.hashCode());
+        result = prime * result + ((globalStats == null) ? 0 : globalStats.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((skillList == null) ? 0 : skillList.hashCode());
+        return result;
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
@@ -141,7 +152,6 @@ public class BasicEntity implements Entity, Serializable {
                 return false;
             }
         }
-
 
         if (name == null) {
             if (other.name != null) {
@@ -301,7 +311,15 @@ public class BasicEntity implements Entity, Serializable {
      * eunm used to navigate trough statMap, current or global.
      */
     public enum StatTime {
-        GLOBAL, CURRENT;
+        /**
+         * Global map for entity's stats, used to restore current through stages.
+         */
+        GLOBAL,
+
+        /**
+         * Current map for entity's stats modified on the fight.
+         */
+        CURRENT;
     }
 
     /**
@@ -309,6 +327,19 @@ public class BasicEntity implements Entity, Serializable {
      *
      */
     public enum ActionType {
-        SET, DECREASE, INCREASE;
+        /**
+         * Overwrite previous value.
+         */
+        SET,
+
+        /**
+         * Decrease from previous value.
+         */
+        DECREASE,
+
+        /**
+         * Increase from previous value.
+         */
+        INCREASE;
     }
 }
